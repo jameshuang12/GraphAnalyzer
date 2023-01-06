@@ -1,10 +1,15 @@
 from polygon import RESTClient
 client = RESTClient("ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ")
+import numpy as np
 
 class Stock():
-    open = 0
-    high = 0
-    low = 0
+    first_open = ''
+    first_high = ''
+    first_low = ''
+    
+    sec_open = ''
+    sec_high = ''
+    sec_low = ''
 
     def __init__(self, tick_name, day1, day2):
         self.tick_name = tick_name
@@ -19,14 +24,15 @@ class Stock():
             self.day2
         )
 
-        Stock.open = aggs[0].open
-        Stock.high = aggs[0].high
-        Stock.low = aggs[0].low
+        index = np.busday_count(day1, day2) - 1
 
+        Stock.first_open = aggs[0].open
+        Stock.first_high = aggs[0].high
+        Stock.first_low = aggs[0].low
 
-    def storeInfo(self):
-        print(Stock.low)
+        Stock.sec_open = aggs[index].open
+        Stock.sec_high = aggs[index].high
+        Stock.sec_low = aggs[index].low
 
-
-TESLA = Stock('TSLA', '2022-04-04', '2022-04-04')
-TESLA.storeInfo()
+    def __str__(self):
+        return f"{self.tick_name}"
