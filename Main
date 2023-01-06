@@ -1,12 +1,76 @@
 from polygon import RESTClient
+from datetime import date
+import numpy as np
 
-client = RESTClient("API_KEY_HERE")
+#add database of the symbols of the stock
+
+print('Thank you for using our program today. Please put in the symbol for the desired stock')
+
+name = input()
+#create helper function to figue out if Symbol is correct. if not, tell it to retry.
+# if spelling is correct but not case, return that incorrect casing and list out options
+#if theres no correct one, just tell user that that symbol was not found anywhere in the database
+
+
+today = date.today()
+print("Today's date is:", today)
+
+
+#make this into helper function
+print('Enter the date for the first data point')
+year = int(input('Enter the year: '))
+month = int(input('Enter the month: '))
+day = int(input('Enter the day: '))
+
+date1 = date(year, month, day)
+print(date1)
+
+
+#make valid date helper function, within 2 years and not in the future.
+delta = date1 - today
+
+if delta.days>730:
+    print("date given is beyond two years of allotted data given by the api program. Please enter "
+          "a valid date between today and two years ago.")
+    #helper function call
+
+#do the same with date 2 in terms of functions
+
+print('Enter the date for the second data point')
+year = int(input('Enter the year: '))
+month = int(input('Enter the month: '))
+day = int(input('Enter the day: '))
+
+date2 = date(year, month, day)
+print(date2)
+
+#helper function to compare dates
+if date1>date2:
+    print('first date cannot be later than second date. please write both dates again.')
+
+days = np.busday_count(date1, date2)
+
+
+
+client = RESTClient("ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ")
 
 aggs = client.get_aggs(
-   "TSLA",
+   name,
     1,
     "day",
-    "2022-04-04",
-    "2022-04-04",
+    date1,
+    date2,
 )
-print(aggs[0].high)  
+
+def main():
+    for i in range(len(aggs)):
+       print(aggs[i], "\n")
+
+
+    print(aggs[0])
+    print(aggs[days - 2])
+
+#find a way to access data. it is listed by date and so find the data with the date as the index.ma
+
+if __name__ == '__main__':
+    main()
