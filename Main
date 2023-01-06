@@ -1,12 +1,23 @@
+from person import Person
+from datetime import datetime
+import numpy as np
+API_KEY = 'ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ'
 from polygon import RESTClient
+client = RESTClient(API_KEY)
 
-client = RESTClient("API_KEY_HERE")
+firstday = "2022-04-04"
+lastday = "2022-06-08"
 
-aggs = client.get_aggs(
-   "TSLA",
-    1,
-    "day",
-    "2022-04-04",
-    "2022-04-04",
-)
-print(aggs[0].high)  
+youmom = client.get_aggs("TSLA",1,"day", firstday, lastday)
+
+days = np.busday_count(firstday, lastday)
+
+
+def main():
+    for i in range(len(youmom)):
+       print(youmom[i], "\n")
+
+
+    print(youmom[0])
+    print(youmom[days - 2])
+
