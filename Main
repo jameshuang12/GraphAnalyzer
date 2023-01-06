@@ -1,0 +1,12 @@
+from polygon import RESTClient
+
+client = RESTClient("API_KEY_HERE")
+
+aggs = client.get_aggs(
+   "TSLA",
+    1,
+    "day",
+    "2022-04-04",
+    "2022-04-04",
+)
+print(aggs[0].high)  
