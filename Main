@@ -1,12 +1,32 @@
 from polygon import RESTClient
+client = RESTClient("ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ")
 
-client = RESTClient("API_KEY_HERE")
+class Stock():
+    open = 0
+    high = 0
+    low = 0
 
-aggs = client.get_aggs(
-   "TSLA",
-    1,
-    "day",
-    "2022-04-04",
-    "2022-04-04",
-)
-print(aggs[0].high)  
+    def __init__(self, tick_name, day1, day2):
+        self.tick_name = tick_name
+        self.day1 = day1
+        self.day2 = day2
+
+        aggs = client.get_aggs(
+            self.tick_name,
+            1,
+            "day",
+            self.day1,
+            self.day2
+        )
+
+        Stock.open = aggs[0].open
+        Stock.high = aggs[0].high
+        Stock.low = aggs[0].low
+
+
+    def storeInfo(self):
+        print(Stock.low)
+
+
+TESLA = Stock('TSLA', '2022-04-04', '2022-04-04')
+TESLA.storeInfo()
