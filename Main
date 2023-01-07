@@ -30,13 +30,10 @@ def percentageChange(clientData):
     print('For the second date')
     data2 = askUserForData(clientData)
 
-    if (data1 == 'high' and data2 == 'high'):
-        change = int(((clientData.sec_high) / (clientData.first_high)) * 100)
-    elif (data1 == 'low' and data2 == 'low'):
-        change = int(((clientData.sec_low) / (clientData.first_low)) * 100)
-    elif (data1 == 'open' and data2 == 'open'):
-        change = int(((clientData.sec_open) / (clientData.first_open)) * 100)
+    first_call = 'first_' + str(data1)
+    sec_call = 'sec_' + str(data2)
 
+    change = int(((getattr(globals()['clientData'], sec_call)) / (getattr(globals()['clientData'], first_call))) * 100)
 
     if change < 100:
         print('The percentage change had a decline of ' + str(change) + '%')
