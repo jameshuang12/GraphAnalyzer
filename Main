@@ -17,7 +17,19 @@ def main():
     #print(clientData[days])
     "\n"
 
-    investment(clientData)
+    while True:
+        investment(clientData)
+        while True:
+            answer = str(input('Would you like to run again? (y/n): '))
+            if answer in ('y', 'n'):
+                break
+            print("invalid input.")
+        if answer == 'y':
+            continue
+        else:
+            print("Goodbye")
+            break
+            
 
 def percentageChange(clientData):
     """ Get the percentage change of the two dates given by the user.
@@ -33,7 +45,8 @@ def percentageChange(clientData):
     first_call = 'first_' + str(data1)
     sec_call = 'sec_' + str(data2)
 
-    change = int(((getattr(globals()['clientData'], sec_call)) / (getattr(globals()['clientData'], first_call))) * 100)
+    change = int(((getattr(globals()['clientData'], sec_call)) / 
+                  (getattr(globals()['clientData'], first_call))) * 100)
 
     if change < 100:
         print('The percentage change had a decline of ' + str(change) + '%')
@@ -64,7 +77,14 @@ def investment(clientData):
     :param clientData: All the data needed from the given dates
     :return: the amount gained or lost
     """
-    amount = int(input('Enter the amount you would like to invest : $'))
+    while True:
+        amount = str(input('Enter the amount you would like to invest: $'))
+        if not amount.isdigit():
+            print('Invalid input (requires numeric amount)')
+            continue
+        else:
+            amount = int(amount)
+            break
 
     investmentAmount = int(amount * (percentageChange(clientData) / 100))
 
