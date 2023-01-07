@@ -5,10 +5,12 @@ class Stock():
     first_open = ''
     first_high = ''
     first_low = ''
+    first_close = ''
     
     sec_open = ''
     sec_high = ''
     sec_low = ''
+    sec_close = ''
 
     def __init__(self, tick_name, day1, day2):
         self.tick_name = tick_name
@@ -28,10 +30,12 @@ class Stock():
         Stock.first_open = aggs[0].open
         Stock.first_high = aggs[0].high
         Stock.first_low = aggs[0].low
+        Stock.first_close = aggs[0].close
 
         Stock.sec_open = aggs[index].open
         Stock.sec_high = aggs[index].high
         Stock.sec_low = aggs[index].low
+        Stock.sec_close = aggs[index].close
     
 
     def __str__(self):
