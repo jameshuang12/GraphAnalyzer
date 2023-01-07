@@ -5,9 +5,9 @@ import numpy as np
 #add database of the symbols of the stock
 
 def userInput():
-    print('Thank you for using our program today. Please put in the symbol for the desired stock')
+    print('Thank you for using our program today.')
 
-    name = input()
+    name = _askTicker()
     #create helper function to figue out if Symbol is correct. if not, tell it to retry.
     # if spelling is correct but not case, return that incorrect casing and list out options
     #if theres no correct one, just tell user that that symbol was not found anywhere in the database
@@ -43,11 +43,13 @@ def userInput():
     if date1>date2:
         print('first date cannot be later than second date. please write both dates again.')
 
+    return name, date1, date2
+
 
 def _askTimestamp():
     year = int(_validate_number('year'))
-    month = int(input('Enter the month: '))
-    day = int(input('Enter the day: '))
+    month = int(_validate_number('month'))
+    day = int(_validate_number('day'))
 
     fulldate = date(year, month, day)   
 
@@ -60,9 +62,16 @@ def _validate_number(value):
         if userInput.isdigit():
             return userInput
         else:
-            print(f"PLease enter a valid {value}.")
-            continue
+            print(f"Inputted {value} is invalid.")
 
+
+def _askTicker():
+    while True:
+        userInput = (input("Enter the stock ticker symbol: "))
+        if userInput.isalpha() and userInput.isupper() and len(userInput) <= 5:
+            return userInput
+        else:
+            print(f"Inputted stock ticker symbol is invalid.")
 
 
 
