@@ -1,28 +1,14 @@
-from person import Person
 from datetime import datetime
-API_KEY = 'ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ'
-from polygon import RESTClient
-client = RESTClient(API_KEY)
+import stock_class
 
 
 firstday = "2020-12-20"
 lastday = "2021-05-30"
 
-clientData = client.get_aggs("TSLA",1,"day", firstday, lastday)
+clientData = stock_class.Stock("TSLA", firstday, lastday)
 
-days = clientData.__len__() - 1
 
 def main():
-    # for i in range(len(clientData)):
-    #     print(clientData[i], "\n")
-
-    print(clientData[0])
-    '\n'
-
-    print(clientData[days])
-    "\n"
-
-    # percentageChange(clientData)
 
     investment(clientData)
 
@@ -32,23 +18,23 @@ def percentageChange(clientData):
     :param clientData: All the data needed from the given dates
     :return: the percent change between the first to the second
     """
-    print('For the first date')
+    print('For the 1st date')
     data1 = askUserForData(clientData)
-    print('For the second date')
+    print('For the 2nd date')
     data2 = askUserForData(clientData)
 
     if (data1 == 'high' and data2 == 'high'):
-        change = int(((clientData[days]).high / clientData[0].high) * 100)
+        change = int(((clientData.sec_high) / clientData.first_high) * 100)
     elif (data1 == 'low' and data2 == 'low'):
-        change = int(((clientData[days]).low / clientData[0].low) * 100)
+        change = int(((clientData.sec_low) / clientData.first_low) * 100)
     elif (data1 == 'open' and data2 == 'open'):
-        change = int(((clientData[days]).open / clientData[0].open) * 100)
+        change = int(((clientData.sec_open) / clientData.first_open) * 100)
 
 
     if change < 100:
-        print('The percentage change had a decline of ' + str(change) + '%')
+        print('The percentage change had a decline of ' + str(change) + '%.')
     else:
-        print('The percentage change had a growth of ' + str(change) + '%')
+        print('The percentage change had a growth of ' + str(change) + '%.')
 
     return change
 
@@ -60,7 +46,7 @@ def askUserForData(clientData):
     """
     print('Please choose from the options below you would like to use')
     print('1. open, 2. high, 3. low')
-    data = str(input('Enter the data here: '))
+    data = str(input('Enter the word here: '))
 
     while data != ('high') and data != ('open') and data != ('low'):
         data = str(input('Incorrect input, options are open, high ,and low: '))
@@ -69,7 +55,7 @@ def askUserForData(clientData):
 
 
 def investment(clientData):
-    """ Calcua=lates the investment amount for the user
+    """ Calcualates the investment amount for the user
 
     :param clientData: All the data needed from the given dates
     :return: the amount gained or lost
@@ -78,17 +64,15 @@ def investment(clientData):
 
     investmentAmount = amount * (percentageChange(clientData) / 100)
 
-
     if investmentAmount < amount:
         total = int(amount - investmentAmount)
-        print('If you invested on '+ firstday + ' with the amount of $' + str(amount) + ' then you'
-              " would've lost $" + str(total) + " if you withdraw on " + lastday)
+        print('If you invested on '+ clientData.day1 + ' with the amount of $' + str(amount)
+     + " then you would've lost $" + str(total) + " if you withdraw on " + clientData.day2 + '.')
     else:
         total = investmentAmount - amount
-        print('If you invested on ' + firstday + 'with the amount of $' + str(amount) + ' then you'
-             " would've gained $" + str(total) + " if you withdraw on " + lastday)
+        print('If you invested on ' + firstday + ' with the amount of $' + str(amount)
+    + " then you would've gained $" + str(total) + " if you withdraw on " + clientData.day2 + '.')
 
 
 if __name__ == '__main__':
     main()
-    
