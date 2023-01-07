@@ -4,51 +4,65 @@ import numpy as np
 
 #add database of the symbols of the stock
 
-print('Thank you for using our program today. Please put in the symbol for the desired stock')
+def userInput():
+    print('Thank you for using our program today. Please put in the symbol for the desired stock')
 
-name = input()
-#create helper function to figue out if Symbol is correct. if not, tell it to retry.
-# if spelling is correct but not case, return that incorrect casing and list out options
-#if theres no correct one, just tell user that that symbol was not found anywhere in the database
-
-
-today = date.today()
-print("Today's date is:", today)
+    name = input()
+    #create helper function to figue out if Symbol is correct. if not, tell it to retry.
+    # if spelling is correct but not case, return that incorrect casing and list out options
+    #if theres no correct one, just tell user that that symbol was not found anywhere in the database
 
 
-#make this into helper function
-print('Enter the date for the first data point')
-year = int(input('Enter the year: '))
-month = int(input('Enter the month: '))
-day = int(input('Enter the day: '))
-
-date1 = date(year, month, day)
-print(date1)
+    today = date.today()
+    print("Today's date is:", today)
 
 
-#make valid date helper function, within 2 years and not in the future.
-delta = date1 - today
+    #make this into helper function
+    print('Enter the date for the first data point')
 
-if delta.days>730:
-    print("date given is beyond two years of allotted data given by the api program. Please enter "
-          "a valid date between today and two years ago.")
-    #helper function call
+    date1 = _askTimestamp()
+    print(date1)
 
-#do the same with date 2 in terms of functions
 
-print('Enter the date for the second data point')
-year = int(input('Enter the year: '))
-month = int(input('Enter the month: '))
-day = int(input('Enter the day: '))
+    #make valid date helper function, within 2 years and not in the future.
+    delta = date1 - today
 
-date2 = date(year, month, day)
-print(date2)
+    if delta.days>730:
+        print("date given is beyond two years of allotted data given by the api program. Please enter "
+              "a valid date between today and two years ago.")
+        #helper function call
 
-#helper function to compare dates
-if date1>date2:
-    print('first date cannot be later than second date. please write both dates again.')
+    #do the same with date 2 in terms of functions
 
-days = np.busday_count(date1, date2)
+    print('Enter the date for the second data point')
+
+    date2 = _askTimestamp()
+    print(date2)
+
+    #helper function to compare dates
+    if date1>date2:
+        print('first date cannot be later than second date. please write both dates again.')
+
+
+def _askTimestamp():
+    year = int(_validate_number('year'))
+    month = int(input('Enter the month: '))
+    day = int(input('Enter the day: '))
+
+    fulldate = date(year, month, day)   
+
+    return fulldate
+
+
+def _validate_number(value):
+    while True:
+        userInput = (input(f"Enter the {value}: "))
+        if userInput.isdigit():
+            return userInput
+        else:
+            print(f"PLease enter a valid {value}.")
+            continue
+
 
 
 
