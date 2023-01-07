@@ -1,23 +1,94 @@
 from person import Person
 from datetime import datetime
-import numpy as np
 API_KEY = 'ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ'
 from polygon import RESTClient
 client = RESTClient(API_KEY)
 
-firstday = "2022-04-04"
-lastday = "2022-06-08"
 
-youmom = client.get_aggs("TSLA",1,"day", firstday, lastday)
+firstday = "2020-12-20"
+lastday = "2021-05-30"
 
-days = np.busday_count(firstday, lastday)
+clientData = client.get_aggs("TSLA",1,"day", firstday, lastday)
 
+days = clientData.__len__() - 1
 
 def main():
-    for i in range(len(youmom)):
-       print(youmom[i], "\n")
+    # for i in range(len(clientData)):
+    #     print(clientData[i], "\n")
+
+    print(clientData[0])
+    '\n'
+
+    print(clientData[days])
+    "\n"
+
+    # percentageChange(clientData)
+
+    investment(clientData)
+
+def percentageChange(clientData):
+    """ Get the percentage change of the two dates given by the user.
+
+    :param clientData: All the data needed from the given dates
+    :return: the percent change between the first to the second
+    """
+    print('For the first date')
+    data1 = askUserForData(clientData)
+    print('For the second date')
+    data2 = askUserForData(clientData)
+
+    if (data1 == 'high' and data2 == 'high'):
+        change = int(((clientData[days]).high / clientData[0].high) * 100)
+    elif (data1 == 'low' and data2 == 'low'):
+        change = int(((clientData[days]).low / clientData[0].low) * 100)
+    elif (data1 == 'open' and data2 == 'open'):
+        change = int(((clientData[days]).open / clientData[0].open) * 100)
 
 
-    print(youmom[0])
-    print(youmom[days - 2])
+    if change < 100:
+        print('The percentage change had a decline of ' + str(change) + '%')
+    else:
+        print('The percentage change had a growth of ' + str(change) + '%')
 
+    return change
+
+def askUserForData(clientData):
+    """ Ask the user for the specific data they want to provided by the stock market
+
+    :param yourmom: All the data needed from the given dates
+    :return: the data the user wants to use
+    """
+    print('Please choose from the options below you would like to use')
+    print('1. open, 2. high, 3. low')
+    data = str(input('Enter the data here: '))
+
+    while data != ('high') and data != ('open') and data != ('low'):
+        data = str(input('Incorrect input, options are open, high ,and low: '))
+
+    return data
+
+
+def investment(clientData):
+    """ Calcua=lates the investment amount for the user
+
+    :param clientData: All the data needed from the given dates
+    :return: the amount gained or lost
+    """
+    amount = int(input('Enter the amount you would like to invest : $'))
+
+    investmentAmount = amount * (percentageChange(clientData) / 100)
+
+
+    if investmentAmount < amount:
+        total = int(amount - investmentAmount)
+        print('If you invested on '+ firstday + ' with the amount of $' + str(amount) + ' then you'
+              " would've lost $" + str(total) + " if you withdraw on " + lastday)
+    else:
+        total = investmentAmount - amount
+        print('If you invested on ' + firstday + 'with the amount of $' + str(amount) + ' then you'
+             " would've gained $" + str(total) + " if you withdraw on " + lastday)
+
+
+if __name__ == '__main__':
+    main()
+    
