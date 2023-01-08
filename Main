@@ -1,34 +1,57 @@
 from polygon import RESTClient
 from datetime import date
 from dateutil import relativedelta
+import csv
+import re
 
-# add database of the symbols of the stock and put it into a data structure accessible to the program.
-#connect data structure into the name helper function
-
-
-def userInput():
+def userInput(my_hashmap):
     """
     will have 2 helper functions: the name and dates
     :return: three values: the name, date 1 and date 2
     """
     print('Thank you for using our program today. Please put in the symbol for the desired stock')
 
-    #will need to make helpe function for symbol.
-    # if spelling is correct but not case, return that incorrect casing and list out options
-    # if theres no correct one, just tell user that that symbol was not found anywhere in the database
-
-    name = input()
+    name = search(my_hashmap)
+    #checks the ticker symbol to see if its valid
 
     today = date.today()
     print("Today's date is:", today)
 
     dates = _timeStamps(today)
+    #checks if timestamps are valid
 
     date1 = dates[0]
     date2 = dates[1]
 
     return name, date1, date2
 
+def search(hashmap):
+    """
+    :param hashmap: hashmap with all the stock symbols, also where the user inputs the stock symbol
+    :return: returns a valid stock symbol.
+    """
+    # Set a flag to control the loop
+    found = False
+
+    # Prompt the user for their input
+    key = input('Enter a stock symbol: ')
+
+    # Start a loop that will run until the symbol is found or the user wants to stop
+    while not found:
+
+        # Use a regular expression to check if the input contains only letters and symbols
+        if re.fullmatch(r'[A-Z\^]+', key) and len(key) <= 5:
+            # Input is valid, so we check if the symbol exists in the hashmap
+            if key in hashmap:
+                print(f'Stock found!')
+                found = True
+            else:
+                # Symbol not found, so we ask the user if they want to try again
+                key = input('Symbol not found. Double check if it is the correct symbol. ')
+        else:
+            # Input is not valid, so we ask the user to try again
+            key = input('Invalid input. Please enter only capital letters and/or the ^ symbol.')
+    return key
 
 def _timeStamps(today):
     """
@@ -45,7 +68,6 @@ def _timeStamps(today):
     date2 = _askTimestamp(today)
     print(date2)
 
-
     while True:
         if date1 < date2:
             return date1, date2
@@ -59,7 +81,6 @@ def _timeStamps(today):
             date2 = _askTimestamp(today)
             print(date2)
             continue
-
 
 def _askTimestamp(today):
     """
@@ -83,10 +104,10 @@ def _askTimestamp(today):
 
             return fulldate
         else:
-            fulldate = str(input("date given is beyond two years of allotted data given by the api program. Please enter "
+            fulldate = str(
+                input("date given is beyond two years of allotted data given by the api program. Please enter "
                       "a valid date between today and two years ago. "))
             continue
-
 
 def _validate_number(value):
     """
@@ -101,9 +122,30 @@ def _validate_number(value):
             print(f"PLease enter a valid {value}.")
             continue
 
+def create_hashmap(filename):
+    """
+    :param filename: csv file with all the tickers
+    :return: a hashmap to use for the program
+    """
+    hashmap = {}
+
+    # Open the CSV file and read the data
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            # Assign the first and second columns to the key and value, respectively
+            key = row[0] if len(row) >= 1 else 'default_key'
+            value = row[1] if len(row) >= 2 else 'default_value'
+            hashmap[key] = value
+
+    return hashmap
+
 
 def main():
-    result = userInput()
+
+    my_hashmap = create_hashmap('StockSymbols.csv')
+
+    result = userInput(my_hashmap)
 
     client = RESTClient("ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ")
 
