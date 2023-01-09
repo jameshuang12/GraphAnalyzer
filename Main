@@ -4,12 +4,14 @@ from dateutil import relativedelta
 import csv
 import re
 
-def userInput(my_hashmap):
+def userInput():
     """
     will have 2 helper functions: the name and dates
     :return: three values: the name, date 1 and date 2
     """
     print('Thank you for using our program today. Please put in the symbol for the desired stock')
+
+    my_hashmap = create_hashmap('StockSymbols.csv')
 
     name = search(my_hashmap)
     #checks the ticker symbol to see if its valid
@@ -24,6 +26,7 @@ def userInput(my_hashmap):
     date2 = dates[1]
 
     return name, date1, date2
+
 
 def search(hashmap):
     """
@@ -52,6 +55,7 @@ def search(hashmap):
             # Input is not valid, so we ask the user to try again
             key = input('Invalid input. Please enter only capital letters and/or the ^ symbol.')
     return key
+
 
 def _timeStamps(today):
     """
@@ -82,31 +86,28 @@ def _timeStamps(today):
             print(date2)
             continue
 
+
 def _askTimestamp(today):
     """
     :param today: today's date
     :return: a valid time format within 2 years
     """
-    year = int(_validate_number('year'))
-
-    while year < today.year - 2:
-        year = int(input('Year must be within two years of todays date. Please try again '))
-
-    month = int(_validate_number('month'))
-    day = int(_validate_number('day'))
-
-    fulldate = date(year, month, day)
-
-    delta = relativedelta.relativedelta(today, fulldate)
 
     while True:
-        if delta.years < 2:
 
+        year = int(_validate_number('year'))
+        month = int(_validate_number('month'))
+        day = int(_validate_number('day'))
+
+        fulldate = date(year, month, day)
+
+        delta = relativedelta.relativedelta(today, fulldate)
+        
+        if delta.years < 2:
             return fulldate
         else:
-            fulldate = str(
-                input("date given is beyond two years of allotted data given by the api program. Please enter "
-                      "a valid date between today and two years ago. "))
+            print("date given is beyond two years of allotted data given by the api program. Please enter "
+                  "a valid date between today and two years ago. ")
             continue
 
 def _validate_number(value):
@@ -143,9 +144,7 @@ def create_hashmap(filename):
 
 def main():
 
-    my_hashmap = create_hashmap('StockSymbols.csv')
-
-    result = userInput(my_hashmap)
+    result = userInput()
 
     client = RESTClient("ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ")
 
