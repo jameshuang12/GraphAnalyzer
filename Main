@@ -1,19 +1,12 @@
 from datetime import datetime
 import stock_class
-
-
-firstday = "2020-12-20"
-lastday = "2021-05-30"
-
-clientData = stock_class.Stock("TSLA", firstday, lastday)
-
-
+import confirm_input
 
 def main():
-  
-    print(clientData.first_high, clientData.sec_high)
-    '\n'
 
+    user_data = confirm_input.userInput()
+
+    clientData = stock_class.Stock(user_data[0], user_data[1], user_data[2])
     #print(clientData[days])
     "\n"
 
@@ -29,7 +22,7 @@ def main():
         else:
             print("Goodbye")
             break
-            
+
 
 def percentageChange(clientData):
     """ Get the percentage change of the two dates given by the user.
@@ -45,8 +38,8 @@ def percentageChange(clientData):
     first_call = 'first_' + str(data1)
     sec_call = 'sec_' + str(data2)
 
-    change = int(((getattr(globals()['clientData'], sec_call)) / 
-                  (getattr(globals()['clientData'], first_call))) * 100)
+    change = int(((getattr(locals()['clientData'], sec_call)) / 
+                  (getattr(locals()['clientData'], first_call))) * 100)
 
     if change < 100:
         print('The percentage change had a decline of ' + str(change) + '%')
@@ -54,6 +47,7 @@ def percentageChange(clientData):
         print('The percentage change had a growth of ' + str(change) + '%')
 
     return change
+
 
 def askUserForData(clientData):
     """ Ask the user for the specific data they want to provided by the stock market
@@ -77,6 +71,7 @@ def investment(clientData):
     :param clientData: All the data needed from the given dates
     :return: the amount gained or lost
     """
+
     while True:
         amount = str(input('Enter the amount you would like to invest: $'))
         if not amount.isdigit():
@@ -91,12 +86,12 @@ def investment(clientData):
 
     if investmentAmount < amount:
         total = int(amount - investmentAmount)
-        print('If you invested on '+ clientData.day1 + ' with the amount of $' + str(amount) + ' ,then you'
-              " would've lost $" + str(total) + " if you withdraw on " + clientData.day2 + ".")
+        print('If you invested on '+ str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
+              " would've lost $" + str(total) + " if you withdraw on " + str(clientData.day2) + ".")
     else:
         total = investmentAmount - amount
-        print('If you invested on ' + firstday + ' with the amount of $' + str(amount) + ' ,then you'
-             " would've gained $" + str(total) + " if you withdraw on " + clientData.day2 + ".")
+        print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
+             " would've gained $" + str(total) + " if you withdraw on " + str(clientData.day2) + ".")
 
 
 if __name__ == '__main__':
