@@ -21,10 +21,10 @@ def userInput():
     dates = _timeStamps(today)
     #checks if timestamps are valid
 
-    date1 = dates[0]
-    date2 = dates[1]
+    first_date = dates[0]
+    second_date = dates[1]
 
-    return name, date1, date2
+    return name, first_date, second_date
 
 
 def search(hashmap):
@@ -36,7 +36,7 @@ def search(hashmap):
     found = False
 
     # Prompt the user for their input
-    key = input('Enter a stock symbol: ')
+    key = input('Enter a stock symbol: ').upper()
 
     # Start a loop that will run until the symbol is found or the user wants to stop
     while not found:
@@ -46,14 +46,13 @@ def search(hashmap):
             # Input is valid, so we check if the symbol exists in the hashmap
             if key in hashmap:
                 print(f'Stock found!')
-                found = True
+                return key
             else:
                 # Symbol not found, so we ask the user if they want to try again
-                key = input('Symbol not found. Double check if it is the correct symbol. ')
+                key = input('Symbol not found. Enter a valid stock symbol: ')
         else:
             # Input is not valid, so we ask the user to try again
-            key = input('Invalid input. Please enter only capital letters and/or the ^ symbol.')
-    return key
+            key = input('Invalid input. Please enter only capital letters and/or the ^ symbol: ')
 
 
 def _timeStamps(today):
@@ -63,26 +62,19 @@ def _timeStamps(today):
     This however doesn't include if the ipo was less than 2 yrs ago
     """
 
-    print('Enter the date for the first data point')
-    date1 = _askTimestamp(today)
-    print(date1)
-
-    print('Enter the date for the second data point')
-    date2 = _askTimestamp(today)
-    print(date2)
-
     while True:
+        print('Enter the date for the first data point')
+        date1 = _askTimestamp(today)
+        print(date1)
+
+        print('Enter the date for the second data point')
+        date2 = _askTimestamp(today)
+        print(date2)
+            
         if date1 < date2:
             return date1, date2
         else:
             print('first date cannot be later than second date. please write both dates again.')
-            print('Enter the date for the first data point')
-            date1 = _askTimestamp(today)
-            print(date1)
-
-            print('Enter the date for the second data point')
-            date2 = _askTimestamp(today)
-            print(date2)
             continue
 
 
@@ -93,7 +85,6 @@ def _askTimestamp(today):
     """
 
     while True:
-
         year = int(_validate_number('year'))
         month = int(_validate_number('month'))
         day = int(_validate_number('day'))
@@ -105,8 +96,8 @@ def _askTimestamp(today):
         if delta.years < 2:
             return fulldate
         else:
-            print("date given is beyond two years of allotted data given by the api program. Please enter "
-                  "a valid date between today and two years ago. ")
+            print("date given is beyond two years of allotted data given by the api program. "
+                  "Please enter a valid date between today and two years ago. ")
             continue
 
 def _validate_number(value):
