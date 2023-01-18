@@ -8,8 +8,11 @@ def main():
 
     clientData = stock_class.Stock(user_data[0], user_data[1], user_data[2])
 
+    per_change = percentageChange(clientData)
+    
     while True:
-        investment(clientData)
+        moving_avg_crossover(clientData)
+        investment(clientData, per_change)
         while True:
             answer = str(input('Would you like to run again for this stock? (y/n): '))
             if answer in ('y', 'n'):
@@ -29,9 +32,9 @@ def percentageChange(clientData):
     :return: the percent change between the first to the second
     """
     print('For the first date')
-    data1 = askUserForData(clientData)
+    data1 = _ask_user_for_data()
     print('For the second date')
-    data2 = askUserForData(clientData)
+    data2 = _ask_user_for_data()
 
     first_call = getattr(clientData, str(data1))
     sec_call = getattr(clientData, str(data2))
@@ -46,8 +49,8 @@ def percentageChange(clientData):
     return change
 
 
-def askUserForData(clientData):
-    """ Ask the user for the specific data they want to provided by the stock market
+def _ask_user_for_data():
+    """ Ask the user for the specific data they want provided by the stock market
 
     :param yourmom: All the data needed from the given dates
     :return: the data the user wants to use
@@ -56,23 +59,18 @@ def askUserForData(clientData):
     print('1. open, 2. high, 3. low, 4. close')
     data = str(input('Enter the data here: '))
 
-    while data != ('high') and data != ('open') and data != ('low') and data != ('close'):
+    while data not in ['high', 'open', 'low', 'close']:
         data = str(input('Incorrect input, options are open, high , low, close: '))
 
     return data
 
 
-def moving_average_calc():
-    prices = prices
-
-
-def investment(clientData):
+def investment(clientData, percent_change):
     """ Calcualates the investment amount for the user
 
     :param clientData: All the data needed from the given dates
     :return: the amount gained or lost
     """
-
     while True:
         amount = str(input('Enter the amount you would like to invest: $'))
         if not amount.isdigit():
@@ -82,17 +80,74 @@ def investment(clientData):
             amount = int(amount)
             break
 
-    investmentAmount = int(amount * (percentageChange(clientData) / 100))
-
-
+    investmentAmount = int(amount * (percent_change / 100))
+    total = abs(int(amount - investmentAmount))
+   
     if investmentAmount < amount:
-        total = int(amount - investmentAmount)
         print('If you invested on '+ str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
               " would've lost $" + str(total) + " if you withdraw on " + str(clientData.day2) + ".")
     else:
-        total = investmentAmount - amount
         print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
              " would've gained $" + str(total) + " if you withdraw on " + str(clientData.day2) + ".")
+
+
+def moving_avg_crossover(clientData):
+    """
+    WHAT IT DOES
+    
+    
+    """
+    price_data = getattr(clientData, str(_ask_user_for_data()))
+    moving_avg_range = _ask_user_for_range(price_data)
+
+    long_subset = price_data[-(moving_avg_range[0]):]
+    short_subset = price_data[-(moving_avg_range[1]):]
+
+    compare = 'greater'
+    decision = 'should'
+
+    if (sum(short_subset) / len(short_subset)) <= (sum(long_subset) / len(long_subset)):
+        compare = 'less'
+        decision = 'should not'
+
+    print(f"Because short-term moving average (${int(sum(short_subset) / len(short_subset))}) is " 
+          f"{compare} than long-term moving average (${int(sum(long_subset) / len(long_subset))}"
+          f"), you {decision} invest in {clientData.tick_name} on {clientData.day2}.")
+
+
+def _ask_user_for_range(data_range):
+    """
+    
+    
+    """
+    sentence = ('Please choose the range (day) for the long-term moving average \n' 
+                '1. 200, 2. 100, 3. 50, 4. 25, 5. 10 \nEnter numeric range here: ')
+
+    while True:
+        long_range = str(input(sentence))
+        if long_range not in ['200', '100', '50', '25', '10']:
+            print('Invalid input (options are 200, 100, 50, 25, 10)')
+            continue
+        elif int(long_range) > len(data_range):
+            print('Option must be within range of the two dates')
+            continue
+        else:
+            long_range = int(long_range)
+            break
+
+    while True:
+        short_range = str(input(sentence.replace("long-term", "short-term")))
+        if short_range not in ['200', '100', '50', '25', '10']:
+            print('Invalid input (options are 200, 100, 50, 25, 10)')
+            continue
+        elif int(short_range) >= long_range:
+            print('Range for short-term must be less than long-term')
+            continue
+        else:
+            short_range = int(short_range)
+            break
+    
+    return long_range, short_range
 
 
 if __name__ == '__main__':
