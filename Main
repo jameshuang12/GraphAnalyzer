@@ -1,169 +1,157 @@
-from polygon import RESTClient
-from datetime import date
-from dateutil import relativedelta
-import csv
-import re
-
-def userInput():
-    """
-    will have 2 helper functions: the name and dates
-    :return: three values: the name, date 1 and date 2
-    """
-    print('Thank you for using our program today. Please put in the symbol for the desired stock')
-
-    my_hashmap = create_hashmap('StockSymbols.csv')
-
-    name = search(my_hashmap)
-    #checks the ticker symbol to see if its valid
-
-    today = date.today()
-    print("Today's date is:", today)
-
-    dates = _timeStamps(today)
-    #checks if timestamps are valid
-
-    date1 = dates[0]
-    date2 = dates[1]
-
-    return name, date1, date2
-
-
-def search(hashmap):
-    """
-    :param hashmap: hashmap with all the stock symbols, also where the user inputs the stock symbol
-    :return: returns a valid stock symbol.
-    """
-    # Set a flag to control the loop
-    found = False
-
-    # Prompt the user for their input
-    key = input('Enter a stock symbol: ')
-
-    # Start a loop that will run until the symbol is found or the user wants to stop
-    while not found:
-
-        # Use a regular expression to check if the input contains only letters and symbols
-        if re.fullmatch(r'[A-Z\^]+', key) and len(key) <= 5:
-            # Input is valid, so we check if the symbol exists in the hashmap
-            if key in hashmap:
-                print(f'Stock found!')
-                found = True
-            else:
-                # Symbol not found, so we ask the user if they want to try again
-                key = input('Symbol not found. Double check if it is the correct symbol. ')
-        else:
-            # Input is not valid, so we ask the user to try again
-            key = input('Invalid input. Please enter only capital letters and/or the ^ symbol.')
-    return key
-
-
-def _timeStamps(today):
-    """
-    :param today's date
-    :return: two valid dates within the 2 years and the first date is earlier than the second.
-    This however doesn't include if the ipo was less than 2 yrs ago
-    """
-
-    print('Enter the date for the first data point')
-    date1 = _askTimestamp(today)
-    print(date1)
-
-    print('Enter the date for the second data point')
-    date2 = _askTimestamp(today)
-    print(date2)
-
-    while True:
-        if date1 < date2:
-            return date1, date2
-        else:
-            print('first date cannot be later than second date. please write both dates again.')
-            print('Enter the date for the first data point')
-            date1 = _askTimestamp(today)
-            print(date1)
-
-            print('Enter the date for the second data point')
-            date2 = _askTimestamp(today)
-            print(date2)
-            continue
-
-
-def _askTimestamp(today):
-    """
-    :param today: today's date
-    :return: a valid time format within 2 years
-    """
-
-    while True:
-
-        year = int(_validate_number('year'))
-        month = int(_validate_number('month'))
-        day = int(_validate_number('day'))
-
-        fulldate = date(year, month, day)
-
-        delta = relativedelta.relativedelta(today, fulldate)
-        
-        if delta.years < 2:
-            return fulldate
-        else:
-            print("date given is beyond two years of allotted data given by the api program. Please enter "
-                  "a valid date between today and two years ago. ")
-            continue
-
-def _validate_number(value):
-    """
-    :param value: a value
-    :return: a valid number
-    """
-    while True:
-        userInput = (input(f"Enter the {value}: "))
-        if userInput.isdigit():
-            return userInput
-        else:
-            print(f"PLease enter a valid {value}.")
-            continue
-
-def create_hashmap(filename):
-    """
-    :param filename: csv file with all the tickers
-    :return: a hashmap to use for the program
-    """
-    hashmap = {}
-
-    # Open the CSV file and read the data
-    with open(filename, 'r') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            # Assign the first and second columns to the key and value, respectively
-            key = row[0] if len(row) >= 1 else 'default_key'
-            value = row[1] if len(row) >= 2 else 'default_value'
-            hashmap[key] = value
-
-    return hashmap
+from datetime import datetime
+import stock_class
+import confirm_input
+import numpy as np
 
 
 def main():
+    user_data = confirm_input.userInput()
 
-    result = userInput()
-
-    client = RESTClient("ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ")
-
-    aggs = client.get_aggs(
-        result[0],
-        1,
-        "day",
-        result[1],
-        result[2],
-    )
-    days = aggs.__len__()
-    for i in range(len(aggs)):
-        print(i, " ", aggs[i], "\n")
-
-    print(aggs[0])
-    print(aggs[days - 1])
+    clientData = stock_class.Stock(user_data[0], user_data[1], user_data[2])
+    per_change = percentageChange(clientData)
 
 
-# find a way to access data. it is listed by date and so find the data with the date as the index.ma
+    #will need to clean this up, works but the ordering is wack
+    while True:
+        if len(clientData) >= 10:
+            answer = str(input("Would you like to run a Relative Strength Index calculation? (y/n): "))
+            if answer in ('y', 'n'):
+                if answer == 'y':
+                    rsi_function(clientData)
+                    continue
+                else:
+                    while True:
+                        investment(clientData, per_change)
+                        answer = str(input('Would you like to run again for this stock? (y/n): '))
+                        if answer == 'y':
+                            continue
+                        elif answer == 'n':
+                            print("Goodbye")
+                            break
+                        else:
+                            print("invalid input.")
+                    break
+            print("invalid input.")
+
+
+def percentageChange(clientData):
+    """ Get the percentage change of the two dates given by the user.
+
+    :param clientData: All the data needed from the given dates
+    :return: the percent change between the first to the second
+    """
+    print('For the first date')
+    data1 = askUserForData(clientData)
+    print('For the second date')
+    data2 = askUserForData(clientData)
+
+    first_call = getattr(clientData, str(data1))
+    sec_call = getattr(clientData, str(data2))
+
+    change = int((sec_call[-1] / first_call[0]) * 100)
+
+    if change < 100:
+        print('The percentage change had a decline of ' + str(change) + '%')
+    else:
+        print('The percentage change had a growth of ' + str(change) + '%')
+
+    return change
+
+
+def askUserForData(clientData):
+    """ Ask the user for the specific data they want to provided by the stock market
+
+    :param yourmom: All the data needed from the given dates
+    :return: the data the user wants to use
+    """
+    print('Please choose from the options below you would like to use')
+    print('1. open, 2. high, 3. low, 4. close')
+    data = str(input('Enter the data here: '))
+
+    while data != ('high') and data != ('open') and data != ('low') and data != ('close'):
+        data = str(input('Incorrect input, options are open, high , low, close: '))
+
+    return data
+
+
+def rsi_function(clientData):
+    gaincounter = 0
+    losscounter = 0
+    gain = 0
+    loss = 0
+
+    for i in range(9, 0, -1):
+        if clientData.close[-i] < clientData.close[-i - 1]:
+            gaincounter += 1
+            gain += clientData.close[-i - 1] - clientData.close[-i]
+        else:
+            losscounter += 1
+            loss += abs(clientData.close[-i] - clientData.close[-i - 1])
+
+    avg_gain = gain / gaincounter
+
+    avg_loss = loss / losscounter
+
+    rsi = 100 - 100 / (1 + (avg_gain / avg_loss))
+
+    print(rsi)
+
+    if rsi > 70.000:
+        print("The RSI index is " + str(rsi) + ", meaning the stock is currently being overbought"
+                                          " and the stock will have a bearish trend in the near future."
+                                          " It is strongly not recommended to buy the stock now.")
+    elif 70.000 > rsi > 50.000:
+        print("The RSI index is " + str(rsi) + ", meaning the stock is being bought more than it is being sold."
+                                          " Buying the stock today is encouraged as it is following a "
+                                          "bullish trend but it is recommended to either hold for long term or"
+                                          "sell it in the near future")
+
+    elif 50.00 > rsi > 30.000:
+        print("The RSI index is " + str(rsi) + ", meaning the stock is being sold more than it is being bought."
+                                          " Buying the stock today is not encouraged as it following a bearish"
+                                          " trend but is recommended to buy later")
+    else:
+        print("The RSI index is " + str(rsi) + ", meaning the stock is currently being oversold and the stock will"
+                                          " have a bullish trend in the near future. It is strongly recommended"
+                                          " to buy the stock now")
+
+def should_i_buy():
+    """
+    :param: rsi function value, ADX function value, moving average value(Calculation TBD)
+    :return: statement that will tell user whether to buy stock or not based on the three indicating factors
+    """
+    return 1
+
+
+def investment(clientData, percent_change):
+    """ Calcualates the investment amount for the user
+
+    :param clientData: All the data needed from the given dates
+    :return: the amount gained or lost
+    """
+
+    while True:
+        amount = str(input('Enter the amount you would like to invest: $'))
+        if not amount.isdigit():
+            print('Invalid input (requires numeric amount)')
+            continue
+        else:
+            amount = int(amount)
+            break
+
+    investmentAmount = int(amount * (percentageChange(clientData) / 100))
+
+    if investmentAmount < amount:
+        total = int(amount - investmentAmount)
+        print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
+                                                                                                     " would've lost $" + str(
+            total) + " if you withdraw on " + str(clientData.day2) + ".")
+    else:
+        total = investmentAmount - amount
+        print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
+                                                                                                     " would've gained $" + str(
+            total) + " if you withdraw on " + str(clientData.day2) + ".")
+
 
 if __name__ == '__main__':
     main()
