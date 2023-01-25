@@ -10,7 +10,7 @@ def main():
     per_change = percentageChange(clientData)
 
     while True:
-        rsi_function(clientData)
+        rsi_function(clientData) #write in conditions for 50 days, reorder
         moving_avg_crossover(clientData)
         investment(clientData, per_change)
         while True:
