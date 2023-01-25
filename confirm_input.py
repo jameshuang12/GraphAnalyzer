@@ -30,7 +30,7 @@ def userInput():
 
 def search(hashmap):
     """
-    :param hashmap: hashmap with all the stock symbols, also where the user inputs the stock symbol
+    :param hashmap with all the stock symbols, also where the user inputs the stock symbol
     :return: returns a valid stock symbol.
     """
     # Set a flag to control the loop

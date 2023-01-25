@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         widget.currentIndexChanged.connect(self.index_changed)
 
 
-
+        #brainstorm ideas for templates
 
 
     def index_changed(self, i):  # i is an int

@@ -36,4 +36,4 @@ class Stock():
         return f"{self.tick_name}"
 
     def __len__(self):
-        return len(self.items) # function to get value of the length
+        return len(self.items)
