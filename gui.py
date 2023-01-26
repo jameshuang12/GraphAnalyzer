@@ -23,39 +23,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
 
-        # This create a checkbox in our gui, this is not seen as it is not set in this code
-
-
-        widget = QCheckBox()
-        widget.setCheckState(Qt.Checked)
-
-        widget.setCheckState(Qt.PartiallyChecked)
-        widget.setTristate(True)
-        widget.stateChanged.connect(self.show_state)
-
-        self.setCentralWidget(widget)
-
-        # This is to create a slidedown option, this is not shown since widget is not set
-
-        widget = QComboBox()
-        widget.addItems(["One", "Two", "Three"])
-
-        # Sends the current index (position) of the selected item.
-        widget.currentIndexChanged.connect(self.index_changed)
-
-
-        #brainstorm ideas for templates
-
-
-    def index_changed(self, i):  # i is an int
-        print(i)
-
-    def text_changed(self, s):  # s is a str
-        print(s)
-
-    def show_state(self, s):
-        print(s == Qt.Checked)
-        print(s)
 
 
 app = QApplication(sys.argv)
