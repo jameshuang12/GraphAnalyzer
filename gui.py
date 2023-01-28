@@ -1,70 +1,19 @@
 import sys
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit, QDateTimeEdit,
-                             QDial, QDoubleSpinBox, QFontComboBox, QLabel, QLCDNumber, QLineEdit,
-                             QMainWindow, QProgressBar,
-                             QPushButton, QRadioButton, QSlider, QSpinBox, QTimeEdit, QVBoxLayout,
-                             QWidget, QHBoxLayout, QStackedLayout,
-                             )
-from layout_colorwidget import Color
 
-# The link for the GUI: https://www.pythonguis.com/tutorials/pyqt-basic-widgets/
+from PyQt5.QtCore import pyqtSlot
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QGridLayout, QLineEdit, QPushButton
 
-class MainWindow(QMainWindow):
+from name_to_ticker import TickerToName
+from yfinance_part import YahooStockInfo
 
-    def __init__(self):
-        super(MainWindow, self).__init__()
+import matplotlib as mpl
+import matplotlib.dates
+import pandas as pd
+from matplotlib import style
+import matplotlib.pyplot as plt
 
-        self.setWindowTitle("Graph Analyzer")
+matplotlib.use("Qt5Agg")
 
-        pagelayout = QVBoxLayout()
-        button_layout = QHBoxLayout()
-        self.stacklayout = QStackedLayout()
-
-        pagelayout.addLayout(button_layout)
-        pagelayout.addLayout(self.stacklayout)
-
-        widget = QLabel("Welcome to our website")
-        font = widget.font()
-        font.setPointSize(20)
-
-        btn = QPushButton("red")
-        btn.pressed.connect(self.activate_tab_1)
-        button_layout.addWidget(btn)
-        self.stacklayout.addWidget(Color("red"))
-
-        btn = QPushButton("green")
-        btn.pressed.connect(self.activate_tab_2)
-        button_layout.addWidget(btn)
-        self.stacklayout.addWidget(Color("green"))
-
-        btn = QPushButton("yellow")
-        btn.pressed.connect(self.activate_tab_3)
-        button_layout.addWidget(btn)
-        self.stacklayout.addWidget(Color("yellow"))
-
-        widget.setFont(font)
-        widget.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-
-        self.setCentralWidget(widget)
-
-        widget2 = QWidget()
-        widget2.setLayout(pagelayout)
-        self.setCentralWidget(widget2)
-
-    def activate_tab_1(self):
-        self.stacklayout.setCurrentIndex(0)
-
-    def activate_tab_2(self):
-        self.stacklayout.setCurrentIndex(1)
-
-    def activate_tab_3(self):
-        self.stacklayout.setCurrentIndex(2)
-
-
-
-app = QApplication(sys.argv)
-w = MainWindow()
-w.show()
-app.exec()
-
+#we are going to use this guy's gui so here the link
+# https://github.com/ViktorBash/PyStocks/blob/master/Stock%20Project/gui_part.py
