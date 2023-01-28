@@ -257,5 +257,13 @@ def _ask_user_for_range(data_range):
     return long_range, short_range
 
 
+def buy_or_not():
+    """
+    :param: rsi function value, ADX function value, moving average value(Calculation TBD)
+    :return: statement that will tell user whether to buy stock or not based on the three indicating factors
+    """
+    return 1
+
+
 if __name__ == '__main__':
     main()
