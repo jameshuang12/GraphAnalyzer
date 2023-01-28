@@ -140,7 +140,8 @@ class PyStock(QMainWindow):
 
         # Old worse way of adding a graph that auto opens.
         # canvas = Canvas(self, width=8, height=4)
-        # self.generalLayout.addWidget(canvas, 4, 1)  # This adds a non functional graph to the actual pyqt5 area
+        # self.generalLayout.addWidget(canvas, 4, 1)
+        # This adds a non functional graph to the actual pyqt5 area
 
     @pyqtSlot()  # Plots our matplotlib graph if the button for a graph is clicked
     def makeGraph(self):
