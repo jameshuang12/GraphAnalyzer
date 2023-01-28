@@ -5,8 +5,7 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow,\
     QLabel, QGridLayout, QLineEdit, QPushButton
 
-from name_to_ticker import TickerToName
-from yfinance_part import YahooStockInfo
+# Import polygon.io here to access api
 
 import matplotlib as mpl
 import matplotlib.dates
