@@ -7,7 +7,7 @@ class Stock():
         self.day1 = day1
         self.day2 = day2
 
-        self.high = []  
+        self.high = []
         self.low = []
         self.close = []
         self.open = []
@@ -21,7 +21,6 @@ class Stock():
         )
             
         for i in range(len(aggs)):
-
             self.open.append(aggs[i].open)
             self.high.append(aggs[i].high)
             self.low.append(aggs[i].low)

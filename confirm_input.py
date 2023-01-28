@@ -130,3 +130,4 @@ def create_hashmap(filename):
             hashmap[row[0]] = None
 
     return hashmap
+
