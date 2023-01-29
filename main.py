@@ -63,7 +63,7 @@ def _ask_user_for_data():
     while data not in ['high', 'open', 'low', 'close']:
         data = str(input('Incorrect input, options are open, high , low, close: '))
 
-    return data
+    return datagit
 
 
 def investment(clientData, percent_change):
