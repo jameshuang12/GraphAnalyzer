@@ -19,6 +19,7 @@ class Stock():
             self.day1,
             self.day2
         )
+        self.day_range = len(aggs)
             
         for i in range(len(aggs)):
             self.open.append(aggs[i].open)
