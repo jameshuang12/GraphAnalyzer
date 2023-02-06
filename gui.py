@@ -1,28 +1,37 @@
 import sys
 
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow,\
-    QLabel, QGridLayout, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, \
+    QLabel, QGridLayout, QLineEdit, QPushButton, QMessageBox
 
-# Import polygon.io here to access api
-
+from GraphAnalyzer import main
 import matplotlib as mpl
 import matplotlib.dates
 import pandas as pd
 from matplotlib import style
 import matplotlib.pyplot as plt
 
-#we are going to use this guy's gui so here the link
+# we are going to use this guy's gui so here the link
 # https://github.com/ViktorBash/PyStocks/blob/master/Stock%20Project/gui_part.py
+from GraphAnalyzer.main import Main
 
-class PyStock(QMainWindow):
-    amount_searched = 0  # Will be useful later when we want to delete widgets to update our search data
-    global_stock_name = " "
 
-    def __init__(self):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+class GraphAnalyzerNameWindow(QMainWindow):
+    '''
+    This will create the first window, which will ask the user to enter the ticker symbol.
+    Currently facing problems with the transition from the first window to the second where
+    after the user puts in the correct ticker symbol it will close the first window (but also
+    retaining the name data) and opening up the second window that is similar to the first but
+    it will ask for the two timestamps.
+    '''
+
+
+    def __init__(self,):  # Initializes GUI. Calls other functions to make other parts of the GUI.
         super().__init__()
-        self.setWindowTitle("PyStocks")
+
+        self.main = Main()
+        self.setWindowTitle("Graph Analyzer")
         self.setWindowIcon(QtGui.QIcon("StockClipart.jpg"))
         # self.setFixedSize(500, 500)
 
@@ -31,6 +40,87 @@ class PyStock(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)  # .generalLayout is our main layout
 
+        self._createInput()  # Creates search bar at the top
+        self._createTopLabel()  # Creates the text that says "Search for a stock"
+        self._createSearchButton()  # Creates the search button
+
+        label_font = QtGui.QFont("Helvetica Neue", 20)
+        self.setFont(label_font)
+        self.setStyleSheet("QPushButton { background-color: #29c455}")
+        self.searchButton.clicked.connect(self._inputSend)
+
+    def _createInput(self):  # Creates search bar at the top
+        self.input = QLineEdit()
+        self.input.setFixedHeight(35)
+        self.input.setReadOnly(False)
+        input_font = QtGui.QFont("Verdana", 20)
+        self.input.setFont(input_font)
+        self.generalLayout.addWidget(self.input, 2, 0)
+
+    def _createTopLabel(self):  # Creates the text that says to input a ticker/stock
+        self.toplabel = QLabel("Thank you for using our program today. Please put in the symbol for the desired stock")
+        self.toplabel.setFixedHeight(35)
+        self.generalLayout.addWidget(self.toplabel, 1, 0)
+
+    def _createSearchButton(self):  # Creates the search button
+        self.searchButton = QPushButton("Search")
+        self.searchButton.setFixedHeight(35)
+        self.searchButton.clicked.connect(self._inputSend)
+        self.generalLayout.addWidget(self.searchButton, 2, 1)
+
+    def _getInput(self):  # Returns what is in the input box at the time. Also returns it capitalized
+        input = self.input.text()
+        return input.upper()
+
+    def _removeInput(self):  # Resets input box
+        self.input.setText("")
+
+    def show_warning(self, title, message):
+        msg = QMessageBox()
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setIcon(QMessageBox.Warning)
+        msg.exec_()
+
+    @pyqtSlot()  # Connects the search button to functions
+    def _inputSend(self):
+        user_data = self._getInput()
+
+        if not self.main.activate(user_data):
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText("Invalid input. Please try again.")
+            msg.exec_()
+            #it shows the error message twice for some reason
+            return
+        else:
+            self.close() #closes the current window
+
+            '''
+            tried to use the pyqt signal library to see if I can close a first window and
+            create a second window to get the two dates.
+            '''
+            #self.second_window_signal.emit(user_data)
+
+
+
+'''
+Attempted to create a second class using nearly the same format as the first window. 
+'''
+'''class GraphAnalyzerDateWindow(QMainWindow):
+
+    def __init__(self):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+        super().__init__()
+
+        self.main = Main()
+        self.setWindowTitle("Graph Analyzer")
+        self.setWindowIcon(QtGui.QIcon("StockClipart.jpg"))
+        # self.setFixedSize(500, 500)
+
+        self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
+        self._centralWidget = QWidget(self)  # Central widget
+        self.setCentralWidget(self._centralWidget)
+        self._centralWidget.setLayout(self.generalLayout)  # .generalLayout is our main layout
 
         self._createInput()  # Creates search bar at the top
         self._createTopLabel()  # Creates the text that says "Search for a stock"
@@ -39,6 +129,8 @@ class PyStock(QMainWindow):
         label_font = QtGui.QFont("Helvetica Neue", 20)
         self.setFont(label_font)
         self.setStyleSheet("QPushButton { background-color: #29c455}")
+        first_window = GraphAnalyzerNameWindow()
+        first_window.second_window_signal.connect(self.show_second_window)
 
     def _createInput(self):  # Creates search bar at the top
         self.input = QLineEdit()
@@ -46,61 +138,55 @@ class PyStock(QMainWindow):
         self.input.setReadOnly(False)
         input_font = QtGui.QFont("Verdana", 20)
         self.input.setFont(input_font)
-        self.generalLayout.addWidget(self.input, 0, 1)
+        self.generalLayout.addWidget(self.input, 2, 0)
 
     def _createTopLabel(self):  # Creates the text that says to input a ticker/stock
-        self.toplabel = QLabel("Enter Ticker")
+        self.toplabel = QLabel("Stock Found! Please enter the first date within two years of today.")
         self.toplabel.setFixedHeight(35)
-        self.generalLayout.addWidget(self.toplabel, 0, 0)
+        self.generalLayout.addWidget(self.toplabel, 1, 0)
 
     def _createSearchButton(self):  # Creates the search button
         self.searchButton = QPushButton("Search")
         self.searchButton.setFixedHeight(35)
         self.searchButton.clicked.connect(self._inputSend)
-        self.generalLayout.addWidget(self.searchButton, 0, 3)
+        self.generalLayout.addWidget(self.searchButton, 2, 1)
 
-    def _getInput(
-            self):  # Returns what is in the input box at the time. Also returns it capitalized
+    def _getInput(self):  # Returns what is in the input box at the time. Also returns it capitalized
         input = self.input.text()
-        return input.upper()
+        return input
 
     def _removeInput(self):  # Resets input box
         self.input.setText("")
 
+    def show_warning(self, title, message):
+        msg = QMessageBox()
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setIcon(QMessageBox.Warning)
+        msg.exec_()
+
     @pyqtSlot()  # Connects the search button to functions
     def _inputSend(self):
-        # Because something is searched, the search counter goes up
-        PyStock.amount_searched = PyStock.amount_searched + 1
-        if PyStock.amount_searched > 1:
-            """
-                       When we first search something this if statement will not activate because amount_searched is one.
-                       This is fine because when we search again it does activate and it resets the text so new data can be
-                       displayed. Without this the old search would still remain in our GUI and mush with the new search data.
-                       """
-            self.stockname.setText("")
-            self.stock_high_1y.setText("")
-            self.stock_low_1y.setText("")
-            self.stock_closing_price.setText("")
-            self.up_or_down_days.setText("")
-            self.company_name.setText("")
-        print(self._getInput())  # For debugging purposes to the console
-        PyStock.global_stock_name = self._getInput()
-        self._createStockInfo(self._getInput())  # Creates the labels with the stock info.
-        self._removeInput()  # Removes input from the search bar
+        user_date_one = self._getInput()
+        user_date_two = self._getInput()'''
 
-    def _createStockInfo(self, stock_name):  # Creates all the info about a stock, with QLabels
 
-        info_font = QtGui.QFont("Helvetica Neue", 14)  # Styling
+'''
+this would've been the third window for the gui with all the rest of the backend in it.
+'''
+def _createStockInfo(self, user_data):  # Creates all the info about a stock, with QLabels
+
+        QtGui.QFont("Helvetica Neue", 14)
         stockname_font = QtGui.QFont("Helvetica Neue", 14)
         stockname_font.setUnderline(True)
 
         # Stock name
-        self.stockname = QLabel(stock_name + ":")
+        self.stockname = QLabel(user_data + ":")
         self.stockname.setFont(stockname_font)
         self.generalLayout.addWidget(self.stockname, 1, 0)
-
+        '''
         # Creating stock object so we can get data about it
-        YahooObject = YahooStockInfo(stock_name)
+        clientData = stock_class.Stock(user_data)
 
         # 1 Year high
         self.stock_high_1y = QLabel("1 Year High $" + str(round(YahooObject.stock_high_1y, 2)))
@@ -154,12 +240,22 @@ class PyStock(QMainWindow):
         plt.ylabel("Price")
         plt.xlabel("1 Year")
         plt.title(PyStock.global_stock_name)
-        plt.show()
+        plt.show()'''
+
+
 def main():  # Creates instance of GUI and shows it, and allows us to exit it
     pystock_ = QApplication(sys.argv)
-    view = PyStock()
-    view.show()
-    sys.exit(pystock_.exec())
+    NameView = GraphAnalyzerNameWindow()
+    NameView.show()
+    sys.exit(pystock_.exec_())
+''' 
+This wouldve been the instantiation of the second window but nothing happens for now.
+
+    dateView = GraphAnalyzerDateWindow()
+    dateView.show()
+'''
+
+
 
 
 if __name__ == "__main__":

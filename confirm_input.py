@@ -3,19 +3,29 @@ from dateutil import relativedelta
 import csv
 import re
 
+'''
 
-def userInput():
+'''
+def userInput(user_data):
     """
-    will have 2 helper functions: the name and dates
-    :return: three values: the name, date 1 and date 2
+    will have a helper functions: the name
+    :return: boolean value that makes sure the user_data is a valid ticker for the first window
     """
-    print('Thank you for using our program today. Please put in the symbol for the desired stock')
+    #print('Thank you for using our program today. Please put in the symbol for the desired stock')
 
-    my_hashmap = create_hashmap('StockSymbols.csv')
+    my_hashmap = create_hashmap('../StockSymbols.csv')
 
-    name = search(my_hashmap)
-    # checks the ticker symbol to see if its valid
+    return search(my_hashmap, user_data)
 
+
+
+def userInputDate(user_data):
+    '''
+
+    :param user_data: valid ticker stamp
+    :return: not updated in GUI either but will should return boolean value that makes sure
+    the timestamps are valid
+    '''
     today = date.today()
     print("Today's date is:", today)
 
@@ -25,35 +35,22 @@ def userInput():
     first_date = dates[0]
     second_date = dates[1]
 
-    return name, first_date, second_date
+    return user_data, first_date, second_date
 
 
-def search(hashmap):
+def search(hashmap, user_data):
     """
     :param hashmap with all the stock symbols, also where the user inputs the stock symbol
-    :return: returns a valid stock symbol.
+    :return: returns boolean value if stock ticker exists for the GUI window.
     """
-    # Set a flag to control the loop
-    found = False
 
-    # Prompt the user for their input
-    key = input('Enter a stock symbol: ').upper()
-
-    # Start a loop that will run until the symbol is found or the user wants to stop
-    while not found:
-
-        # Use a regular expression to check if the input contains only letters and symbols
-        if re.fullmatch(r'[A-Z\^]+', key) and len(key) <= 5:
-            # Input is valid, so we check if the symbol exists in the hashmap
-            if key in hashmap:
-                print(f'Stock found!')
-                return key
-            else:
-                # Symbol not found, so we ask the user if they want to try again
-                key = input('Symbol not found. Enter a valid stock symbol: ')
-        else:
-            # Input is not valid, so we ask the user to try again
-            key = input('Invalid input. Please enter only capital letters and/or the ^ symbol: ')
+    # Use a regular expression to check if the input contains only letters and symbols
+    if re.fullmatch(r'[A-Z\^]+', user_data) and len(user_data) <= 5:
+        if user_data in hashmap:
+            return True
+    else:
+        # Input is not valid, will pop up in the window where the user will need to try again
+        return False
 
 
 def _timeStamps(today):
