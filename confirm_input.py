@@ -18,24 +18,14 @@ def userInput(user_data):
     return search(my_hashmap, user_data)
 
 
-
-def userInputDate(user_data):
+def userInputDate(year, month, day):
     '''
 
     :param user_data: valid ticker stamp
-    :return: not updated in GUI either but will should return boolean value that makes sure
-    the timestamps are valid
+    :return: return boolean value that makes sure the timestamp is valid
     '''
     today = date.today()
-    print("Today's date is:", today)
-
-    dates = _timeStamps(today)
-    # checks if timestamps are valid
-
-    first_date = dates[0]
-    second_date = dates[1]
-
-    return user_data, first_date, second_date
+    return _timeStamp(today, year, month, day)
 
 
 def search(hashmap, user_data):
@@ -52,51 +42,33 @@ def search(hashmap, user_data):
         # Input is not valid, will pop up in the window where the user will need to try again
         return False
 
-
-def _timeStamps(today):
-    """
-    :param today's date
-    :return: two valid dates within the 2 years and the first date is earlier than the second.
-    This however doesn't include if the ipo was less than 2 yrs ago
-    """
-
-    while True:
-        print('Enter the date for the first data point')
-        date1 = _askTimestamp(today)
-        print(date1)
-
-        print('Enter the date for the second data point')
-        date2 = _askTimestamp(today)
-        print(date2)
-
-        if date1 < date2:
-            return date1, date2
-        else:
-            print('first date cannot be later than second date. please write both dates again.')
-            continue
-
-
-def _askTimestamp(today):
+def _timeStamp(today, user_year, user_month, user_day):
     """
     :param today: today's date
-    :return: a valid time format within 2 years
+    :return: a boolean value of a valid time format within 2 years
     """
 
-    while True:
-        year = int(_validate_number('year'))
-        month = int(_validate_number('month'))
-        day = int(_validate_number('day'))
+    year = int(_validate_number(user_year))
+    if not year:
+        return False
 
-        fulldate = date(year, month, day)
+    month = int(_validate_number(user_month))
+    if not month:
+        return False
 
-        delta = relativedelta.relativedelta(today, fulldate)
+    day = int(_validate_number(user_day))
+    if not day:
+        return False
 
-        if delta.years < 2:
-            return fulldate
-        else:
-            print("date given is beyond two years of allotted data given by the api program. "
-                  "Please enter a valid date between today and two years ago. ")
-            continue
+    fulldate = date(year, month, day)
+
+    delta = relativedelta.relativedelta(today, fulldate)
+
+    if not delta.years < 2:
+        return False
+    else:
+        return True
+
 
 
 def _validate_number(value):
@@ -105,12 +77,10 @@ def _validate_number(value):
     :return: a valid number
     """
     while True:
-        userInput = (input(f"Enter the {value}: "))
-        if userInput.isdigit():
-            return userInput
+        if value.isdigit():
+            return value
         else:
-            print(f"PLease enter a valid {value}.")
-            continue
+            return False
 
 
 def create_hashmap(filename):
