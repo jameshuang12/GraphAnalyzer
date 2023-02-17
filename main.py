@@ -1,6 +1,6 @@
-from datetime import datetime
 import stock_class
 import confirm_input
+from datetime import date
 
 '''
 for now, class Main will not be tha main class for the entire GUI. it is just the main class for it to be
@@ -9,23 +9,37 @@ instantiated.
 
 class Main():
 
-    #for the first window
-    def activate(self, user_data):
+    #for the first window GUI
+    def nameActivate(self, user_data):
         confirmData = confirm_input.userInput(user_data)
-
         return confirmData
 
     #for the second window
-    def userInputDate(user_data):
-        return user_data
+    def dateActivate(self, year, month, day):
+        user_date = confirm_input.userInputDate(year, month, day)
+        return user_date
+
+    def compareDates(self, yearOne, monthOne, dayOne, yearTwo, monthTwo, dayTwo):
+        yearOne = int(yearOne)
+        monthOne = int(monthOne)
+        dayOne = int(dayOne)
+        yearTwo = int(yearTwo)
+        monthTwo = int(monthTwo)
+        dayTwo = int(dayTwo)
+
+        firstDate = date(yearOne, monthOne, dayOne)
+        secondDate = date(yearTwo, monthTwo, dayTwo)
+
+        return firstDate, secondDate
 
     '''
     for now, the stockActivator will be solely done in the backend, and then the functions below will be
     made in a third window that will show the graph, the investment and trading options and their 
     respective graphs
     '''
-    def stockActivator(self, user_data):
-        clientData = stock_class.Stock(user_data[0], user_data[1], user_data[2])
+
+    def stockActivator(self, user_data, user_date_one, user_date_two):
+        clientData = stock_class.Stock(user_data, user_date_one, user_date_two)
 
         return clientData
 
@@ -301,4 +315,3 @@ class Main():
 
 if __name__ == '__main__':
     main_instance = Main()
-    main_instance.activate()
