@@ -11,9 +11,10 @@ def main():
     per_change = percentageChange(clientData)
 
     while True:
-        moving_avg_crossover(clientData)
         investment(clientData, per_change)
-        average_dir_index(clientData, 14)
+        if clientData.day_range > 50:
+            buy_or_not(clientData)
+
         while True:
             answer = str(input('Would you like to run again for this stock? (y/n): '))
             if answer in ('y', 'n'):
@@ -119,7 +120,7 @@ def moving_avg_crossover(clientData):
         sum_short_subset = sum(price_data[i: i + moving_avg_range[1]])
         short_term_ma.append(sum_short_subset / moving_avg_range[1])
 
-    return long_term_ma, short_term_ma
+    return short_term_ma[-1] > long_term_ma[-1] ,long_term_ma, short_term_ma
 
 
 def _ask_user_for_range(data_price):
@@ -192,7 +193,7 @@ def average_dir_index(clientData, period):
         sum_dx = sum(dir_index[i: i + period])
         avg_dir_index.append(sum_dx / period)
 
-    return avg_dir_index, pos_di, neg_di
+    return ((avg_dir_index[-1] > 20) and (pos_di[-1] > neg_di[-1])), avg_dir_index, pos_di, neg_di
 
 
 def _dm_and_tr_calc(clientData):
@@ -283,12 +284,50 @@ def _directional_index(s_pos_dm, s_neg_dm, avg_tr):
 
     return positive_di, negative_di
 
+def rsi_function(clientData, period):
+    rsi_values = []
+    for i in range(period):
+        gaincounter = 0
+        losscounter = 0
+        gain = 0
+        loss = 0
+        for j in range(period - 1, 0, -1):
+            if clientData.close[-period + i + j + 1] < clientData.close[-period + i + j]:
+                gaincounter += 1
+                gain += clientData.close[-period + i + j] - clientData.close[-period + i + j + 1]
+            else:
+                losscounter += 1
+                loss += abs(clientData.close[-period + i + j + 1] - clientData.close[-period + i + j])
+        avg_gain = gain / gaincounter
+        avg_loss = loss / losscounter
+        rsi = 100 - 100 / (1 + (avg_gain / avg_loss))
+        rsi_values.append(rsi)
+
+    return rsi_values[-1] < 30, rsi_values
+
 
 def buy_or_not(clientData):
     """
     :param: rsi function value, ADX function value, moving average value(Calculation TBD)
-    :return: statement that will tell user whether to buy stock or not based on the three indicating factors
+    :return: statement that will tell user whether to buy stock or not based on 
+             the three indicating factors
     """
+    rsi_decision, rsi_value = rsi_function(clientData, 14)
+    adx_decision, adx_value, pos_dir, neg_dir = average_dir_index(clientData, 14)
+    ma_decision, long_ma, short_ma = moving_avg_crossover(clientData)
+
+    print("Moving Average Results: Short term - " + str(round(short_ma[-1],2)) + 
+    " ||| Long term - " + str(round(long_ma[-1],2)))
+    print("Average Dir Index Results: ADX value - " + str(round(adx_value[-1], 2)) + 
+    "||| Positive movement - " + str(round(pos_dir[-1], 2)) + 
+    "||| Negative movement - " + str(round(neg_dir[-1], 2)))
+    print("RSI Results: " + str(round(rsi_value[-1], 2)))
+
+    if (ma_decision + adx_decision + rsi_decision >= 2):
+        print("Prediction: BUY " + clientData.tick_name)
+    else:
+        print("Prediction: DO NOT BUY " + clientData.tick_name)
+
     return
 
 
