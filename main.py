@@ -299,12 +299,52 @@ class Main():
 
         return long_range, short_range
 
-    def buy_or_not(self):
-        """
-        :param: rsi function value, ADX function value, moving average value(Calculation TBD)
-        :return: statement that will tell user whether to buy stock or not based on the three indicating factors
-        """
-        return 1
+    def rsi_function(clientData, period):
+        rsi_values = []
+        for i in range(period):
+            gaincounter = 0
+            losscounter = 0
+            gain = 0
+            loss = 0
+            for j in range(period - 1, 0, -1):
+                if clientData.close[-period + i + j + 1] < clientData.close[-period + i + j]:
+                    gaincounter += 1
+                    gain += clientData.close[-period + i + j] - clientData.close[
+                        -period + i + j + 1]
+                else:
+                    losscounter += 1
+                    loss += abs(
+                        clientData.close[-period + i + j + 1] - clientData.close[-period + i + j])
+            avg_gain = gain / gaincounter
+            avg_loss = loss / losscounter
+            rsi = 100 - 100 / (1 + (avg_gain / avg_loss))
+            rsi_values.append(rsi)
+
+        return rsi_values[-1] < 30, rsi_values
+
+    # def buy_or_not(clientData):
+    #     """
+    #     :param: rsi function value, ADX function value, moving average value(Calculation TBD)
+    #     :return: statement that will tell user whether to buy stock or not based on
+    #              the three indicating factors
+    #     """
+    #     rsi_decision, rsi_value = rsi_function(clientData, 14)
+    #     adx_decision, adx_value, pos_dir, neg_dir = average_dir_index(clientData, 14)
+    #     ma_decision, long_ma, short_ma = moving_avg_crossover(clientData)
+    #
+    #     print("Moving Average Results: Short term - " + str(round(short_ma[-1], 2)) +
+    #           " ||| Long term - " + str(round(long_ma[-1], 2)))
+    #     print("Average Dir Index Results: ADX value - " + str(round(adx_value[-1], 2)) +
+    #           "||| Positive movement - " + str(round(pos_dir[-1], 2)) +
+    #           "||| Negative movement - " + str(round(neg_dir[-1], 2)))
+    #     print("RSI Results: " + str(round(rsi_value[-1], 2)))
+    #
+    #     if (ma_decision + adx_decision + rsi_decision >= 2):
+    #         print("Prediction: BUY " + clientData.tick_name)
+    #     else:
+    #         print("Prediction: DO NOT BUY " + clientData.tick_name)
+    #
+    #     return
 
 
 if __name__ == '__main__':
