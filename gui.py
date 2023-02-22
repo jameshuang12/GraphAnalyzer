@@ -1,36 +1,22 @@
 import sys
-
 from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, \
     QLabel, QGridLayout, QLineEdit, QPushButton, QMessageBox
-
 from datetime import date
 import matplotlib as mpl
-
 from matplotlib import style
 import matplotlib.pyplot as plt
-
-# we are going to use this guy's gui so here the link
-# https://github.com/ViktorBash/PyStocks/blob/master/Stock%20Project/gui_part.py
 from main import Main
 
 
 class GraphAnalyzerNameWindow(QMainWindow):
-    '''
-    This will create the first window, which will ask the user to enter the ticker symbol.
-    Currently facing problems with the transition from the first window to the second where
-    after the user puts in the correct ticker symbol it will close the first window (but also
-    retaining the name data) and opening up the second window that is similar to the first but
-    it will ask for the two timestamps.
-    '''
-
     def __init__(self, ):  # Initializes GUI. Calls other functions to make other parts of the GUI.
         super().__init__()
 
         self.main = Main()
         self.setWindowTitle("Graph Analyzer")
-        self.setWindowIcon(QtGui.QIcon("stocksimage.png"))
+        self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
         # self.setFixedSize(500, 500)
 
         self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
@@ -434,9 +420,8 @@ def main():  # Creates instance of GUI and shows it, and allows us to exit it
     # it runs the code underneath and gets the errors. However, if I put the sys.exit line right under,
     # it still runs and the exit code 0 appears.
     GA.exec_()
-    sys.exit(GA.exec_())
-
     user_data = first_window.getInput()
+
 
     # Second window
     second_window = GraphAnalyzerDateWindow(user_data)
