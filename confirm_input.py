@@ -13,7 +13,7 @@ def userInput(user_data):
     """
     #print('Thank you for using our program today. Please put in the symbol for the desired stock')
 
-    my_hashmap = create_hashmap('../StockSymbols.csv')
+    my_hashmap = create_hashmap('StockSymbols.csv')
 
     return search(my_hashmap, user_data)
 

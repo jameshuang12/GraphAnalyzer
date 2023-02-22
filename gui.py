@@ -7,8 +7,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, \
 
 from datetime import date
 import matplotlib as mpl
-import matplotlib.dates
-import pandas as pd
+
 from matplotlib import style
 import matplotlib.pyplot as plt
 
@@ -300,7 +299,6 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.main = Main()
         self.setWindowTitle("Graph Analyzer")
         self.setWindowIcon(QtGui.QIcon("stocksimage.png"))
-        self.setFixedSize(1000, 700)
 
         self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
         self._centralWidget = QWidget(self)  # Central widget
