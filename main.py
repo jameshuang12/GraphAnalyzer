@@ -150,7 +150,6 @@ def _ask_user_for_range(data_price):
 
     # Prompts user for short range until a valid input is received
     while True:
-
         short_range = str(input(sentence.replace("long-term", "short-term")))
         # If input is not any of the five in the list
         if short_range not in ['200', '100', '50', '25', '10']:
