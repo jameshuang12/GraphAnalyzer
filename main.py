@@ -69,7 +69,6 @@ class Main():
 
     def percentageChange(self, clientData):
         """ Get the percentage change of the two dates given by the user.
-
         :param self: All the data needed from the given dates
         :return: the percent change between the first to the second
         """
@@ -93,7 +92,6 @@ class Main():
 
     def _ask_user_for_data(self):
         """ Ask the user for the specific data they want provided by the stock market
-
         :param yourmom: All the data needed from the given dates
         :return: the data the user wants to use
         """
@@ -109,7 +107,6 @@ class Main():
 
     def investment(self, clientData, percent_change):
         """ Calcualates the investment amount for the user
-
         :param clientData: All the data needed from the given dates
         :return: the amount gained or lost
         """
@@ -230,7 +227,6 @@ class Main():
 
     def _dm_and_tr_calc(self,clientData):
         """Calculates true range, positive and negative directional movement (dm)
-
         param clientData: All the data needed from the given dates
         returns: list for true range, positive dm, and negative dm
         """
@@ -269,7 +265,6 @@ class Main():
 
     def _smooth_calc(self, tr_data, pos_mov, neg_mov, period):
         """Smooths the true range, positive and negative directiona movement (dm) by period
-
         param: tr_data: true range data for each day between the range
         param: pos_mov: positive dm for each day between rhe range
         param: neg_mov: negative dm for each day between rhe range
@@ -360,4 +355,3 @@ class Main():
 
 if __name__ == '__main__':
     main_instance = Main()
-

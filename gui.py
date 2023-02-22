@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 
 # we are going to use this guy's gui so here the link
 # https://github.com/ViktorBash/PyStocks/blob/master/Stock%20Project/gui_part.py
-from GraphAnalyzer.main import Main
+from main import Main
+
 
 class GraphAnalyzerNameWindow(QMainWindow):
     '''
@@ -24,8 +25,7 @@ class GraphAnalyzerNameWindow(QMainWindow):
     it will ask for the two timestamps.
     '''
 
-
-    def __init__(self,):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+    def __init__(self, ):  # Initializes GUI. Calls other functions to make other parts of the GUI.
         super().__init__()
 
         self.main = Main()
@@ -55,7 +55,8 @@ class GraphAnalyzerNameWindow(QMainWindow):
         self.generalLayout.addWidget(self.input, 2, 0)
 
     def _createTopLabel(self):  # Creates the text that says to input a ticker/stock
-        self.toplabel = QLabel("Thank you for using our program today. Please put in the symbol for the desired stock")
+        self.toplabel = QLabel(
+            "Thank you for using our program today. Please put in the symbol for the desired stock")
         self.toplabel.setFixedHeight(35)
         self.generalLayout.addWidget(self.toplabel, 1, 0)
 
@@ -86,25 +87,28 @@ class GraphAnalyzerNameWindow(QMainWindow):
         if not self.main.nameActivate(user_data):
             self.show_warning("Error", "Invalid input. Please try again.")
             self._removeInput()
-            #it shows the error message twice for some reason
+            # it shows the error message twice for some reason
             return
         else:
-            self.hide() #hides the first window
+            self.hide()  # hides the first window
             self.switch_to_second(user_data)
 
     def switch_to_second(self, user_data):
         print(user_data)
         self.second_window = GraphAnalyzerDateWindow(user_data)
         self.second_window.show()
-        #need to store the valid user data into a variable for the actual polygon stock
+        # need to store the valid user data into a variable for the actual polygon stock
 
 
 '''
 Crating a second class using nearly the same format as the first window. 
 '''
+
+
 class GraphAnalyzerDateWindow(QMainWindow):
 
-    def __init__(self, user_data):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+    def __init__(self,
+                 user_data):  # Initializes GUI. Calls other functions to make other parts of the GUI.
 
         super().__init__()
         self.third_window = None
@@ -125,7 +129,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.dateTwo = None
 
         self.clientData = None
-        #these variables will be used for the stock_class in the backend
+        # these variables will be used for the stock_class in the backend
 
         self.main = Main()
         self.setWindowTitle("Graph Analyzer")
@@ -148,7 +152,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.setFont(label_font)
         self.setStyleSheet("QPushButton { background-color: #29c455}")
 
-        self.firstDateEntered = False #flag for the first and second dates
+        self.firstDateEntered = False  # flag for the first and second dates
 
     def _createYearInput(self):  # Creates search bar at the top
         self.yearInput = QLineEdit()
@@ -175,9 +179,10 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.generalLayout.addWidget(self.dayInput, 1, 2)
 
     def _createTopLabel(self):  # Creates the text that says to input a ticker/stock
-        self.toplabel = QLabel("             Stock Found! Please enter the earlier first date within two years as numbers: " + "\n"
-        + "               Year                            "
-        "Month                                   Day")
+        self.toplabel = QLabel(
+            "             Stock Found! Please enter the earlier first date within two years as numbers: " + "\n"
+            + "               Year                            "
+              "Month                                   Day")
         self.toplabel.setFixedHeight(80)
         self.generalLayout.addWidget(self.toplabel, 0, 0, 1, 3)
 
@@ -227,7 +232,6 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.dayInput.setText("")
         self.dayInput.update()
 
-
     def show_warning(self, title, message):
         msg = QMessageBox()
         msg.setWindowTitle(title)
@@ -271,10 +275,13 @@ class GraphAnalyzerDateWindow(QMainWindow):
             self._removeMonthInput()
             self._removeDayInput()
 
-            #compare dates
-            dateOne, dateTwo = self.main.compareDates(self.DateOneYear, self.DateOneMonth, self.DateOneDay, self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay)
+            # compare dates
+            dateOne, dateTwo = self.main.compareDates(self.DateOneYear, self.DateOneMonth,
+                                                      self.DateOneDay, self.DateTwoYear,
+                                                      self.DateTwoMonth, self.DateTwoDay)
             if not dateOne < dateTwo:
-                self.show_warning("Error", "First date must be earlier than the second date. Please try again.")
+                self.show_warning("Error",
+                                  "First date must be earlier than the second date. Please try again.")
                 self._removeYearInput()
                 self._removeMonthInput()
                 self._removeDayInput()
@@ -285,14 +292,15 @@ class GraphAnalyzerDateWindow(QMainWindow):
                 print(self.DateOneYear, self.DateOneMonth, self.DateOneDay)
                 print(self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay)
 
-    def switch_to_third(self,stockName, dateOne, dateTwo):
+    def switch_to_third(self, stockName, dateOne, dateTwo):
         clientData = self.main.stockActivator(stockName, dateOne, dateTwo)
         self.third_window = GraphAnalyzerStockWindow(clientData)
         self.third_window.show()
 
 
 class GraphAnalyzerStockWindow(QMainWindow):
-    def __init__(self, clientdata):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+    def __init__(self,
+                 clientdata):  # Initializes GUI. Calls other functions to make other parts of the GUI.
 
         super().__init__()
 
@@ -312,7 +320,6 @@ class GraphAnalyzerStockWindow(QMainWindow):
         stockname_font.setUnderline(True)
 
         name_font = QtGui.QFont("Helvetica Neue", 40)
-
 
         # 1st Date's open amount that will be added to the 3rd GUI, will also be used in the graph
         # The code is getting the value from that date, setting the font, and adding to the gui
@@ -340,26 +347,29 @@ class GraphAnalyzerStockWindow(QMainWindow):
 
         # 2nd Date's open amount that will be added to the 3rd GUI, will also be used in the graph
         # The code is getting the value from that date, setting the font, and adding to the gui
-        self.stock_datetwo_open = QLabel("2nd Date's Open $" + str(round(clientdata.open[len(clientdata) - 1], 2)))
+        self.stock_datetwo_open = QLabel(
+            "2nd Date's Open $" + str(round(clientdata.open[len(clientdata) - 1], 2)))
         self.stock_datetwo_open.setFont(info_font)
         self.generalLayout.addWidget(self.stock_datetwo_open, 5, 6)
 
         # 2nd Date's high amount that will be added to the 3rd GUI, will also be used in the graph
         # The code is getting the value from that date, setting the font, and adding to the gui
-        self.stock_datetwo_high = QLabel("2nd Date's High $" + str(round(clientdata.high[len(clientdata) - 1], 2)))
+        self.stock_datetwo_high = QLabel(
+            "2nd Date's High $" + str(round(clientdata.high[len(clientdata) - 1], 2)))
         self.stock_datetwo_high.setFont(info_font)
         self.generalLayout.addWidget(self.stock_datetwo_high, 6, 6)
 
-        
         # 2nd Date's low amount that will be added to the 3rd GUI, will also be used in the graph
         # The code is getting the value from that date, setting the font, and adding to the gui
-        self.stock_datetwo_low = QLabel("2nd Date's Low $" + str(round(clientdata.low[len(clientdata) - 1], 2)))
+        self.stock_datetwo_low = QLabel(
+            "2nd Date's Low $" + str(round(clientdata.low[len(clientdata) - 1], 2)))
         self.stock_datetwo_low.setFont(info_font)
         self.generalLayout.addWidget(self.stock_datetwo_low, 7, 6)
 
         # 2nd Date's close amount that will be added to the 3rd GUI, will also be used in the graph
         # The code is getting the value from that date, setting the font, and adding to the gui
-        self.stock_datetwo_close = QLabel("2nd Date's Close $" + str(round(clientdata.close[len(clientdata) - 1], 2)))
+        self.stock_datetwo_close = QLabel(
+            "2nd Date's Close $" + str(round(clientdata.close[len(clientdata) - 1], 2)))
         self.stock_datetwo_close.setFont(info_font)
         self.generalLayout.addWidget(self.stock_datetwo_close, 8, 6)
 
@@ -378,23 +388,21 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.graph_button.clicked.connect(lambda: self.makeGraph(clientdata))
         self.generalLayout.addWidget(self.graph_button, 3, 0, 1, 1)
 
-
-
     @pyqtSlot()  # Plots our matplotlib graph if the button for a graph is clicked
     def makeGraph(self, clientdata):
-         mpl.rcParams["toolbar"] = "None"
-         plt.style.use("dark_background")
-         #this portion can either read the two dates listed and print out the closing between the two dates
-         # we can also use the numbers above
+        mpl.rcParams["toolbar"] = "None"
+        plt.style.use("dark_background")
+        # this portion can either read the two dates listed and print out the closing between the two dates
+        # we can also use the numbers above
 
-         style.use("ggplot")
-         # plots the x axis
-         plt.plot(clientdata.high, color="black")
-         plt.ioff()
-         plt.xlabel("From " + str(clientdata.day1) + " to " + str(clientdata.day2) + " in days")
-         plt.ylabel("Amount($)")
-         plt.title(clientdata.tick_name)
-         plt.show()
+        style.use("ggplot")
+        # plots the x axis
+        plt.plot(clientdata.high, color="black")
+        plt.ioff()
+        plt.xlabel("From " + str(clientdata.day1) + " to " + str(clientdata.day2) + " in days")
+        plt.ylabel("Amount($)")
+        plt.title(clientdata.tick_name)
+        plt.show()
 
     def exitButton(self):
         # create a button to exit the application
@@ -402,7 +410,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         exit_button.move(20, 640)
         exit_button.clicked.connect(self.show_popup)
 
-         #will need to fix the windows and such
+        # will need to fix the windows and such
         self.setWindowTitle('My App')
         self.show()
 
@@ -415,14 +423,15 @@ class GraphAnalyzerStockWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             QApplication.instance().quit()
 
+
 def main():  # Creates instance of GUI and shows it, and allows us to exit it
     GA = QApplication(sys.argv)
 
     # First window
     first_window = GraphAnalyzerNameWindow()
     first_window.show()
-    #for some reason, the entire gui is ran by the GA.exec_() and once I click the exit button,
-    #it runs the code underneath and gets the errors. However, if I put the sys.exit line right under,
+    # for some reason, the entire gui is ran by the GA.exec_() and once I click the exit button,
+    # it runs the code underneath and gets the errors. However, if I put the sys.exit line right under,
     # it still runs and the exit code 0 appears.
     GA.exec_()
     sys.exit(GA.exec_())
