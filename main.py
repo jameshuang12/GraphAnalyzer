@@ -8,16 +8,16 @@ for now, class Main will not be tha main class for the entire GUI. it is just th
 instantiated. 
 '''
 
-class Main():
+class SMain():
 
     #for the first window GUI
     def nameActivate(self, user_data):
-        confirmData = confirm_input.generate_hashmap(user_data)
+        confirmData = confirm_input.userInput(user_data)
         return confirmData
 
     #for the second window
     def dateActivate(self, year, month, day):
-        user_date = confirm_input.user_input_dates_plus_current_date(year, month, day)
+        user_date = confirm_input.userInputDate(year, month, day)
         return user_date
 
     def compareDates(self, yearOne, monthOne, dayOne, yearTwo, monthTwo, dayTwo):
@@ -69,6 +69,7 @@ class Main():
 
     def percentageChange(self, clientData):
         """ Get the percentage change of the two dates given by the user.
+
         :param self: All the data needed from the given dates
         :return: the percent change between the first to the second
         """
@@ -92,6 +93,7 @@ class Main():
 
     def _ask_user_for_data(self):
         """ Ask the user for the specific data they want provided by the stock market
+
         :param yourmom: All the data needed from the given dates
         :return: the data the user wants to use
         """
@@ -107,6 +109,7 @@ class Main():
 
     def investment(self, clientData, percent_change):
         """ Calcualates the investment amount for the user
+
         :param clientData: All the data needed from the given dates
         :return: the amount gained or lost
         """
@@ -123,13 +126,13 @@ class Main():
         total = abs(int(amount - investmentAmount))
 
         if investmentAmount < amount:
-            print('If you invested on ' + str(clientData.day_one) + ' with the amount of $' + str(amount) + ' ,then you'
+            print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
                                                                                                          " would've lost $" + str(
-                total) + " if you withdraw on " + str(clientData.day_two) + ".")
+                total) + " if you withdraw on " + str(clientData.day2) + ".")
         else:
-            print('If you invested on ' + str(clientData.day_one) + ' with the amount of $' + str(amount) + ' ,then you'
+            print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
                                                                                                          " would've gained $" + str(
-                total) + " if you withdraw on " + str(clientData.day_two) + ".")
+                total) + " if you withdraw on " + str(clientData.day2) + ".")
 
     def moving_avg_crossover(self, clientData):
         """Calculates the short-term and long-term moving averages for each date
@@ -208,7 +211,7 @@ class Main():
         avg_dir_index = []
 
         # Calculates true range, positive and negative directional movement
-        trueRange, posdm, negdm = self._dm_and_tr_calc(clientData)
+        trueRange, posdm, negdm = self._dm_and_tr_calc(clientData, period)
         # Smooths the true range, positive and negative directional movement over the period
         s_tr, s_positive, s_negative = self._smooth_calc(trueRange, posdm, negdm, period)
         # Calculates both the negative and positive directional index
@@ -225,8 +228,9 @@ class Main():
 
         return ((avg_dir_index[-1] > 20) and (pos_di[-1] > neg_di[-1])), avg_dir_index, pos_di, neg_di
 
-    def _dm_and_tr_calc(self,clientData):
+    def _dm_and_tr_calc(self, clientData, period):
         """Calculates true range, positive and negative directional movement (dm)
+
         param clientData: All the data needed from the given dates
         returns: list for true range, positive dm, and negative dm
         """
@@ -235,7 +239,7 @@ class Main():
         negative_dm = []
 
         # Iterating through each day in the clientData day range
-        for i in range(1, clientData.day_range):
+        for i in range(1, period):
             # Retrieves necessary values from clientData for day i calculations
             curr_high = clientData.high[i]
             curr_low = clientData.low[i]
@@ -265,6 +269,7 @@ class Main():
 
     def _smooth_calc(self, tr_data, pos_mov, neg_mov, period):
         """Smooths the true range, positive and negative directiona movement (dm) by period
+
         param: tr_data: true range data for each day between the range
         param: pos_mov: positive dm for each day between rhe range
         param: neg_mov: negative dm for each day between rhe range
@@ -354,4 +359,5 @@ class Main():
 
 
 if __name__ == '__main__':
-    main_instance = Main()
+    main_instance = SMain()
+
