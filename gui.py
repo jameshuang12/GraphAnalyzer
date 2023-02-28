@@ -17,7 +17,7 @@ class GraphAnalyzerNameWindow(QMainWindow):
         self.main = Main()
         self.setWindowTitle("Graph Analyzer")
         self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
-        # self.setFixedSize(500, 500)
+        self.setFixedSize(3000, 750)
 
         self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
         self._centralWidget = QWidget(self)  # Central widget
@@ -34,7 +34,7 @@ class GraphAnalyzerNameWindow(QMainWindow):
 
     def _createInput(self):  # Creates search bar at the top
         self.input = QLineEdit()
-        self.input.setFixedHeight(35)
+        self.input.setFixedHeight(75)
         self.input.setReadOnly(False)
         input_font = QtGui.QFont("Verdana", 20)
         self.input.setFont(input_font)
@@ -43,12 +43,12 @@ class GraphAnalyzerNameWindow(QMainWindow):
     def _createTopLabel(self):  # Creates the text that says to input a ticker/stock
         self.toplabel = QLabel(
             "Thank you for using our program today. Please put in the symbol for the desired stock")
-        self.toplabel.setFixedHeight(35)
+        self.toplabel.setFixedHeight(75)
         self.generalLayout.addWidget(self.toplabel, 1, 0)
 
     def _createSearchButton(self):  # Creates the search button
         self.searchButton = QPushButton("Search")
-        self.searchButton.setFixedHeight(35)
+        self.searchButton.setFixedHeight(75)
         self.searchButton.clicked.connect(self._inputSend)
         self.generalLayout.addWidget(self.searchButton, 2, 1)
 
@@ -118,9 +118,9 @@ class GraphAnalyzerDateWindow(QMainWindow):
         # these variables will be used for the stock_class in the backend
 
         self.main = Main()
-        self.setWindowTitle("Graph Analyzer")
-        self.setWindowIcon(QtGui.QIcon("stocksimage.png"))
-        # self.setFixedSize(500, 500)
+        self.setWindowTitle("Graph Analyzer Dates")
+        self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
+        self.setFixedSize(3000, 500)
 
         self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
         self._centralWidget = QWidget(self)  # Central widget
@@ -142,7 +142,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
 
     def _createYearInput(self):  # Creates search bar at the top
         self.yearInput = QLineEdit()
-        self.yearInput.setFixedHeight(35)
+        self.yearInput.setFixedHeight(75)
         self.yearInput.setReadOnly(False)
         input_font = QtGui.QFont("Verdana", 20)
         self.yearInput.setFont(input_font)
@@ -150,7 +150,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
 
     def _createMonthInput(self):  # Creates search bar at the top
         self.monthInput = QLineEdit()
-        self.monthInput.setFixedHeight(35)
+        self.monthInput.setFixedHeight(75)
         self.monthInput.setReadOnly(False)
         input_font = QtGui.QFont("Verdana", 20)
         self.monthInput.setFont(input_font)
@@ -158,7 +158,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
 
     def _createDayInput(self):  # Creates search bar at the top
         self.dayInput = QLineEdit()
-        self.dayInput.setFixedHeight(40)
+        self.dayInput.setFixedHeight(75)
         self.dayInput.setReadOnly(False)
         input_font = QtGui.QFont("Verdana", 20)
         self.dayInput.setFont(input_font)
@@ -167,14 +167,14 @@ class GraphAnalyzerDateWindow(QMainWindow):
     def _createTopLabel(self):  # Creates the text that says to input a ticker/stock
         self.toplabel = QLabel(
             "             Stock Found! Please enter the earlier first date within two years as numbers: " + "\n"
-            + "               Year                            "
-              "Month                                   Day")
-        self.toplabel.setFixedHeight(80)
+            + "               Year                                    "
+              "Month                                            Day")
+        self.toplabel.setFixedHeight(150)
         self.generalLayout.addWidget(self.toplabel, 0, 0, 1, 3)
 
     def _createSearchButton(self):  # Creates the search button
         self.searchButton = QPushButton("Search")
-        self.searchButton.setFixedHeight(35)
+        self.searchButton.setFixedHeight(75)
         self.searchButton.clicked.connect(self._inputSend)
         self.generalLayout.addWidget(self.searchButton, 1, 3)
 
@@ -291,8 +291,8 @@ class GraphAnalyzerStockWindow(QMainWindow):
         super().__init__()
 
         self.main = Main()
-        self.setWindowTitle("Graph Analyzer")
-        self.setWindowIcon(QtGui.QIcon("stocksimage.png"))
+        self.setWindowTitle("Graph Analyzer Stock Information")
+        self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
 
         self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
         self._centralWidget = QWidget(self)  # Central widget
@@ -397,7 +397,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         exit_button.clicked.connect(self.show_popup)
 
         # will need to fix the windows and such
-        self.setWindowTitle('My App')
+        self.setWindowTitle('Graph Analyzer Stock Information')
         self.show()
 
     def show_popup(self):
