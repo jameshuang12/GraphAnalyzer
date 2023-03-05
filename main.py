@@ -12,12 +12,12 @@ class Main():
 
     #for the first window GUI
     def nameActivate(self, user_data):
-        confirmData = confirm_input.userInput(user_data)
+        confirmData = confirm_input.generate_hashmap(user_data)
         return confirmData
 
     #for the second window
     def dateActivate(self, year, month, day):
-        user_date = confirm_input.userInputDate(year, month, day)
+        user_date = confirm_input.user_input_dates_plus_current_date(year, month, day)
         return user_date
 
     def compareDates(self, yearOne, monthOne, dayOne, yearTwo, monthTwo, dayTwo):
@@ -123,13 +123,13 @@ class Main():
         total = abs(int(amount - investmentAmount))
 
         if investmentAmount < amount:
-            print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
+            print('If you invested on ' + str(clientData.day_one) + ' with the amount of $' + str(amount) + ' ,then you'
                                                                                                          " would've lost $" + str(
-                total) + " if you withdraw on " + str(clientData.day2) + ".")
+                total) + " if you withdraw on " + str(clientData.day_two) + ".")
         else:
-            print('If you invested on ' + str(clientData.day1) + ' with the amount of $' + str(amount) + ' ,then you'
+            print('If you invested on ' + str(clientData.day_one) + ' with the amount of $' + str(amount) + ' ,then you'
                                                                                                          " would've gained $" + str(
-                total) + " if you withdraw on " + str(clientData.day2) + ".")
+                total) + " if you withdraw on " + str(clientData.day_two) + ".")
 
     def moving_avg_crossover(self, clientData):
         """Calculates the short-term and long-term moving averages for each date

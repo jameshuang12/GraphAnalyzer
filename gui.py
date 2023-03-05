@@ -9,25 +9,43 @@ from matplotlib import style
 import matplotlib.pyplot as plt
 from main import Main
 
+# Program Description: This program is used to crate a GUI for the user to interact with
+# which will prompt the user for their desire company's stock abbreviation, first date
+# they want to use, second date they want to use, and various functions they want the
+# program to perform for their liking
+# We used https://github.com/ViktorBash/PyStocks.git skeleton to assist us with the GUI
 
 class GraphAnalyzerNameWindow(QMainWindow):
-    def __init__(self, ):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+    def __init__(self, ):
+        """
+        Calls the constructor using the GraphAnalyzerNameWindow that will accept
+        no parameters but initialize the first GUI that will ask for the company name.
+        """
+        # Begin the operation of the GUI
         super().__init__()
-
         self.main = Main()
+        # Sets up the name, icon, and size of our GUI
         self.setWindowTitle("Graph Analyzer")
         self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
         self.setFixedSize(3000, 750)
 
-        self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
-        self._centralWidget = QWidget(self)  # Central widget
+        # Using grid layout with coordinates for this project
+        self.generalLayout = QGridLayout()
+        # Moves the GUI to open up in the middle of the screen
+        self._centralWidget = QWidget(self)
         self.setCentralWidget(self._centralWidget)
-        self._centralWidget.setLayout(self.generalLayout)  # .generalLayout is our main layout
+        # sets up our main layout of the GUI
+        self._centralWidget.setLayout(self.generalLayout)
 
-        self._createInput()  # Creates search bar at the top
-        self._createTopLabel()  # Creates the text that says "Search for a stock"
-        self._createSearchButton()  # Creates the search button
+        # Creates a text search bar
+        self._createInput()
+        # Create a text box with text that will prompt the user to insert
+        # information into the search bar
+        self._createTopLabel()
+        # Creates the search button that will be pushed to execute other functions
+        self._createSearchButton()
 
+        # Sets up the font and the background of the GUI
         label_font = QtGui.QFont("Helvetica Neue", 20)
         self.setFont(label_font)
         self.setStyleSheet("QPushButton { background-color: #29c455}")
@@ -385,7 +403,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         # plots the x axis
         plt.plot(clientdata.high, color="black")
         plt.ioff()
-        plt.xlabel("From " + str(clientdata.day1) + " to " + str(clientdata.day2) + " in days")
+        plt.xlabel("From " + str(clientdata.day_one) + " to " + str(clientdata.day_two) + " in days")
         plt.ylabel("Amount($)")
         plt.title(clientdata.tick_name)
         plt.show()
