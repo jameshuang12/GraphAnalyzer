@@ -1,9 +1,10 @@
 import sys
 
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, \
-    QLabel, QGridLayout, QLineEdit, QPushButton, QMessageBox
+    QLabel, QGridLayout, QLineEdit, QPushButton, QMessageBox, QDialog, \
+    QCheckBox, QVBoxLayout, QGroupBox
 
 from datetime import date
 import matplotlib as mpl
@@ -15,6 +16,8 @@ import matplotlib.pyplot as plt
 # https://github.com/ViktorBash/PyStocks/blob/master/Stock%20Project/gui_part.py
 from GraphAnalyzer.main import SMain
 
+
+
 class GraphAnalyzerNameWindow(QMainWindow):
     '''
     This will create the first window, which will ask the user to enter the ticker symbol.
@@ -24,7 +27,7 @@ class GraphAnalyzerNameWindow(QMainWindow):
     it will ask for the two timestamps.
     '''
 
-    def __init__(self,):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+    def __init__(self, ):  # Initializes GUI. Calls other functions to make other parts of the GUI.
         super().__init__()
 
         self.main = SMain()
@@ -85,22 +88,24 @@ class GraphAnalyzerNameWindow(QMainWindow):
         if not self.main.nameActivate(user_data):
             self.show_warning("Error", "Invalid input. Please try again.")
             self._removeInput()
-            #it shows the error message twice for some reason
+            # it shows the error message twice for some reason
             return
         else:
-            self.hide() #hides the first window
+            self.hide()  # hides the first window
             self.switch_to_second(user_data)
 
     def switch_to_second(self, user_data):
         print(user_data)
         self.second_window = GraphAnalyzerDateWindow(user_data)
         self.second_window.show()
-        #need to store the valid user data into a variable for the actual polygon stock
+        # need to store the valid user data into a variable for the actual polygon stock
 
 
 '''
 Crating a second class using nearly the same format as the first window. 
 '''
+
+
 class GraphAnalyzerDateWindow(QMainWindow):
 
     def __init__(self, user_data):  # Initializes GUI. Calls other functions to make other parts of the GUI.
@@ -124,7 +129,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.dateTwo = None
 
         self.clientData = None
-        #these variables will be used for the stock_class in the backend
+        # these variables will be used for the stock_class in the backend
 
         self.main = SMain()
         self.setWindowTitle("Graph Analyzer")
@@ -147,7 +152,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.setFont(label_font)
         self.setStyleSheet("QPushButton { background-color: #29c455}")
 
-        self.firstDateEntered = False #flag for the first and second dates
+        self.firstDateEntered = False  # flag for the first and second dates
 
     def _createYearInput(self):  # Creates search bar at the top
         self.yearInput = QLineEdit()
@@ -174,9 +179,10 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.generalLayout.addWidget(self.dayInput, 1, 2)
 
     def _createTopLabel(self):  # Creates the text that says to input a ticker/stock
-        self.toplabel = QLabel("             Stock Found! Please enter the earlier first date within two years as numbers: " + "\n"
-        + "               Year                            "
-        "Month                                   Day")
+        self.toplabel = QLabel(
+            "             Stock Found! Please enter the earlier first date within two years as numbers: " + "\n"
+            + "               Year                            "
+              "Month                                   Day")
         self.toplabel.setFixedHeight(80)
         self.generalLayout.addWidget(self.toplabel, 0, 0, 1, 3)
 
@@ -226,7 +232,6 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.dayInput.setText("")
         self.dayInput.update()
 
-
     def show_warning(self, title, message):
         msg = QMessageBox()
         msg.setWindowTitle(title)
@@ -270,8 +275,9 @@ class GraphAnalyzerDateWindow(QMainWindow):
             self._removeMonthInput()
             self._removeDayInput()
 
-            #compare dates
-            dateOne, dateTwo = self.main.compareDates(self.DateOneYear, self.DateOneMonth, self.DateOneDay, self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay)
+            # compare dates
+            dateOne, dateTwo = self.main.compareDates(self.DateOneYear, self.DateOneMonth, self.DateOneDay,
+                                                      self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay)
             if not dateOne < dateTwo:
                 self.show_warning("Error", "First date must be earlier than the second date. Please try again.")
                 self._removeYearInput()
@@ -284,21 +290,26 @@ class GraphAnalyzerDateWindow(QMainWindow):
                 print(self.DateOneYear, self.DateOneMonth, self.DateOneDay)
                 print(self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay)
 
-    def switch_to_third(self,stockName, dateOne, dateTwo):
+    def switch_to_third(self, stockName, dateOne, dateTwo):
         clientData = self.main.stockActivator(stockName, dateOne, dateTwo)
-        self.third_window = GraphAnalyzerStockWindow(clientData)
+        self.third_window = GraphAnalyzerStockWindow(clientData, dateOne, dateTwo)
         self.third_window.show()
+
 
 """
 Third mindow
 """
+
+
 class GraphAnalyzerStockWindow(QMainWindow):
 
-    def __init__(self, clientdata):  # Initializes GUI. Calls other functions to make other parts of the GUI.
+    def __init__(self, clientdata, dateOne, dateTwo):  # Initializes GUI. Calls other functions to make other parts of the GUI.
 
         super().__init__()
 
         self.clientData = clientdata
+        self.dateOne = dateOne
+        self.dateTwo = dateTwo
 
         self.main = SMain()
         self.setWindowTitle("Graph Analyzer")
@@ -309,26 +320,21 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)  # .generalLayout is our main layout
 
-
         self._create_graph_button(clientdata)
         self._create_rsi_button(clientdata)
         self._create_adx_button(clientdata)
-        self.exitButton()
-
-        '''
         self._create_mov_avg_button(clientdata)
         self._create_investment_button(clientdata)
-        self._create_should_i_invest_button(clientdata)'''
-
-
+        self._create_should_i_invest_button(clientdata)
+        self.exitButton()
 
         info_font = QtGui.QFont("Helvetica Neue", 14)
         stockname_font = QtGui.QFont("Helvetica Neue", 14)
         stockname_font.setUnderline(True)
-        #the regular font for the third window
+        # the regular font for the third window
 
         name_font = QtGui.QFont("Helvetica Neue", 40)
-        #this is for the stockname for the window
+        # this is for the stockname for the window
 
         # 1st Date's open amount that will be added to the 3rd GUI, will also be used in the graph
         # The code is getting the value from that date, setting the font, and adding to the gui
@@ -378,6 +384,13 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.stock_datetwo_close.setFont(info_font)
         self.generalLayout.addWidget(self.stock_datetwo_close, 8, 6)
 
+        # This shows the number of stock days the two timestamps had in between
+        # The code is getting the value from that date, setting the font, and adding to the gui
+        self.stock_dateone_open = QLabel("Number of stock days between " + str(dateOne) +
+                                         " and " + str(dateTwo) + ": " + str(len(clientdata)))
+        self.stock_dateone_open.setFont(info_font)
+        self.generalLayout.addWidget(self.stock_dateone_open, 9, 6)
+
         # Creating a TickerToName object for next line
         Company = clientdata.tick_name
 
@@ -393,7 +406,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.graph_button.setFont(info_font)
         self.graph_button.setStyleSheet("background-color: #a69695}")
         self.graph_button.clicked.connect(lambda: self.makeGraph(clientdata))
-        self.generalLayout.addWidget(self.graph_button, 3, 0, 1, 3)
+        self.generalLayout.addWidget(self.graph_button, 2, 0, 1, 3)
 
     @pyqtSlot()  # Plots our matplotlib graph if the button for a graph is clicked
     def makeGraph(self, clientdata):
@@ -431,6 +444,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         ax.plot(rsi_values, color="black")
         ax.axhline(y=30, color="red", label="Oversold")
         ax.axhline(y=70, color="blue", label="Overbought")
+
         ax.text(len(rsi_values) - 10, 30, "30", color="red", ha="right", va="top")
         ax.text(len(rsi_values) - 10, 70, "70", color="blue", ha="right", va="bottom")
 
@@ -447,10 +461,11 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.adx_button.setFont(info_font)
         self.adx_button.setStyleSheet("background-color: #a69695}")
         self.adx_button.clicked.connect(lambda: self._make_adx_graph(clientdata))
-        self.generalLayout.addWidget(self.adx_button, 4, 1, 1, 2)
+        self.generalLayout.addWidget(self.adx_button, 5, 0, 1, 2)
 
     def _make_adx_graph(self, clientdata):
-        throwaway_bool, adx, pos_adx, neg_adx = self.main.average_dir_index(clientdata, len(clientdata))
+        throwaway_bool, adx, pos_adx, neg_adx = self.main.average_dir_index(clientdata,
+                                                                            len(clientdata))
 
         mpl.rcParams["toolbar"] = "None"
         plt.style.use("dark_background")
@@ -476,13 +491,228 @@ class GraphAnalyzerStockWindow(QMainWindow):
 
         plt.show()
 
-    '''
     def _create_mov_avg_button(self, clientdata):
+        self.moving_average_button = QPushButton("Moving Avg")
+        info_font = QtGui.QFont("Helvetica Neue", 14)
+        self.moving_average_button.setFont(info_font)
+        self.moving_average_button.setStyleSheet("background-color: #a69695}")
+        self.moving_average_button.clicked.connect(lambda: self._mov_avg_checkbox(clientdata))
+        self.generalLayout.addWidget(self.moving_average_button, 6, 0, 1, 2)
+
+    def _mov_avg_checkbox(self, clientdata):
+        while True:
+            app = QApplication([])
+            dialog = QDialog()
+            dialog.setWindowTitle("Checkbox Popup")
+
+            # first set of checkboxes
+            group1 = QGroupBox("First set of dates")
+            layout1 = QVBoxLayout()
+            options1 = ['100', '50', '25', '10']
+            checkboxes1 = []
+
+            for option in options1:
+                checkbox = QCheckBox(option, group1)
+                checkbox.stateChanged.connect(
+                    lambda state, option=option, checkboxes=checkboxes1: self.handleStateChanged(
+                        state, option, checkboxes))
+                layout1.addWidget(checkbox)
+                checkboxes1.append(checkbox)
+
+            group1.setLayout(layout1)
+
+            # second set of checkboxes
+            group2 = QGroupBox("Second set of Dates")
+            layout2 = QVBoxLayout()
+            options2 = ['200', '100', '50', '25']
+            checkboxes2 = []
+
+            for option in options2:
+                checkbox = QCheckBox(option, group2)
+                checkbox.stateChanged.connect(
+                    lambda state, option=option, checkboxes=checkboxes2: self.handleStateChanged(
+                        state, option, checkboxes))
+                layout2.addWidget(checkbox)
+                checkboxes2.append(checkbox)
+
+            group2.setLayout(layout2)
+
+        # third set of checkboxes
+            group3 = QGroupBox("Price Type")
+            layout3 = QVBoxLayout()
+            options3 = ['high', 'low', 'close', 'open']
+            checkboxes3 = []
+
+            for option in options3:
+                checkbox = QCheckBox(option, group3)
+                checkbox.stateChanged.connect(
+                    lambda state, option=option, checkboxes=checkboxes3: self.handleStateChanged(
+                        state, option, checkboxes))
+                layout3.addWidget(checkbox)
+                checkboxes3.append(checkbox)
+
+            group3.setLayout(layout3)
+
+        # enter button
+            button = QPushButton("Enter", dialog)
+            button.clicked.connect(dialog.accept)
+
+        # main layout
+            layout = QVBoxLayout()
+            layout.addWidget(group1)
+            layout.addWidget(group2)
+            layout.addWidget(group3)
+            layout.addWidget(button)
+
+            dialog.setLayout(layout)
+
+            if dialog.exec_() == QDialog.Accepted:
+                short_term = None
+                long_term = None
+                price_type = None
+
+                for checkbox in checkboxes1:
+                    if checkbox.isChecked():
+                        short_term = int(checkbox.text())
+                for checkbox in checkboxes2:
+                    if checkbox.isChecked():
+                        long_term = int(checkbox.text())
+                for checkbox in checkboxes3:
+                    if checkbox.isChecked():
+                        price_type = checkbox.text()
+
+
+
+                if short_term > long_term:
+                    self.show_warning("Error ", "Long Term days must be longer than Short Term")
+                elif long_term > len(clientdata):
+                    self.show_warning("Error ", "Long Term days must be shorter than days "
+                                            "available in the stock")
+                    #need to fix loop if error pops up
+                else:
+                    # Print selected options
+                    print("Selected options from Set 1:", short_term)
+                    print("Selected options from Set 2:", long_term)
+                    print("Selected options from Set 3:", price_type)
+                    self._make_mov_avg_graph(clientdata, short_term, long_term, price_type)
+
+                    break
+
+    def _make_mov_avg_graph(self, clientdata, short_term, long_term, price_type):
+
+        throwaway_bool, lt_values, st_values = self.main.moving_avg_crossover(
+            clientdata, short_term, long_term, price_type)
+
+        mpl.rcParams["toolbar"] = "None"
+        plt.style.use("dark_background")
+        style.use("ggplot")
+
+        fig, ax = plt.subplots()
+        ax.plot(lt_values, color="red", label="Long Term Moving Average")
+        ax.plot(st_values, color="blue", label="Short Term Moving Average")
+
+        ax.set_xlabel("Days")
+        ax.set_ylabel("Long term and Short Term values")
+        ax.set_title(clientdata.tick_name)
+        ax.legend()
+
+        plt.show()
+
+
+    def handleStateChanged(self, state, option, checkboxes):
+        if state == Qt.Checked:
+            for checkbox in checkboxes:
+                if checkbox.text() != option:
+                    checkbox.setChecked(False)
+        elif state == Qt.Unchecked:
+            pass
 
     def _create_investment_button(self, clientdata):
+        self.investment_button = QPushButton("Investment")
+        info_font = QtGui.QFont("Helvetica Neue", 14)
+        self.investment_button.setFont(info_font)
+        self.investment_button.setStyleSheet("background-color: #a69695}")
+        self.investment_button.clicked.connect(lambda: self._make_investment_window(clientdata))
+        self.generalLayout.addWidget(self.investment_button, 3, 0, 1, 2)
+
+    def _make_investment_window(self, clientdata):
+
+        invest_window = QDialog(self)
+        invest_window.setWindowTitle("Investment Window")
+
+        label = QLabel("Enter how many dollars you would've invested on " +
+                                   str(clientdata.day1), invest_window)
+
+        search_bar = QLineEdit(invest_window)
+
+        enter_button = QPushButton("Enter", invest_window)
+
+        enter_button.clicked.connect(lambda: self._validate_input(search_bar.text(),clientdata))
+
+        layout = QGridLayout(invest_window)
+        layout.addWidget(label, 0, 0)
+        layout.addWidget(search_bar, 0, 1)
+        layout.addWidget(enter_button, 1, 1)
+
+        invest_window.setLayout(layout)
+        invest_window.show()
+
+    def _validate_input(self, input, clientdata):
+        print("working")
+        try:
+            investment_amount = float(input)
+            if investment_amount < 0:
+                self.show_warning("Invalid Input", "Investment amount cannot be negative.")
+            else:
+                self.show_investment_amount(clientdata, investment_amount)
+        except ValueError:
+            self.show_warning("Invalid Input", "Investment amount must be a number.")
+
+    def show_investment_amount(self, clientdata, amount):
+
+        up_or_down, per_change = self.main.percentageChange(clientdata)
+        invested_amount = self.main.investment(clientdata, per_change, amount)
+
+        amount = '${:,.2f}'.format(amount)  #creates into currency value
+        msg = QMessageBox()
+        msg.setWindowTitle("Investment")
+
+        #add high, low, open, close???
+        if not up_or_down:
+            msg.setText(f"Based on closing prices, if you invested {amount} on {clientdata.day1},"
+                        f"there would would've lost {invested_amount} if you withdraw on"
+                        f" {str(clientdata.day2)} by a percent decrease of {per_change}% ")
+        else:
+            msg.setText(f"Based on closing prices, if you invested {amount} on {clientdata.day1},"
+                        f"there would would've gained {invested_amount} if you withdraw on"
+                        f" {str(clientdata.day2)} by a percent increase of {per_change}% ")
+            msg.exec_()
+
+    def show_warning(self, title, message):
+        msg = QMessageBox()
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setIcon(QMessageBox.Warning)
+        msg.exec_()
 
     def _create_should_i_invest_button(self, clientdata):
-    '''
+        self.should_i_button = QPushButton("Should I buy?")
+        info_font = QtGui.QFont("Helvetica Neue", 14)
+        self.should_i_button.setFont(info_font)
+        self.should_i_button.setStyleSheet("background-color: #a69695}")
+        self.should_i_button.clicked.connect(lambda: self.should_i_invest_results(clientdata))
+        self.generalLayout.addWidget(self.should_i_button, 7, 0, 1, 2)
+
+    def should_i_invest_results(self, clientdata):
+        msg = QMessageBox()
+        msg.setWindowTitle("Should I invest?")
+
+        text = self.main.buy_or_not(clientdata)
+        msg.setText(text)
+        msg.exec_()
+
+
+
 
     def exitButton(self):
         # create a button to exit the application
@@ -490,7 +720,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         exit_button.clicked.connect(self.show_popup)
         self.generalLayout.addWidget(exit_button, 10, 0)
 
-         #will need to fix the windows and such
+        # will need to fix the windows and such
         self.setWindowTitle('My App')
         self.show()
 
@@ -503,14 +733,15 @@ class GraphAnalyzerStockWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             QApplication.instance().quit()
 
+
 def main():  # Creates instance of GUI and shows it, and allows us to exit it
     GA = QApplication(sys.argv)
 
     # First window
     first_window = GraphAnalyzerNameWindow()
     first_window.show()
-    #for some reason, the entire gui is ran by the GA.exec_() and once I click the exit button,
-    #it runs the code underneath and gets the errors. However, if I put the sys.exit line right under,
+    # for some reason, the entire gui is ran by the GA.exec_() and once I click the exit button,
+    # it runs the code underneath and gets the errors. However, if I put the sys.exit line right under,
     # it still runs and the exit code 0 appears.
     GA.exec_()
     sys.exit(GA.exec_())
@@ -526,6 +757,7 @@ def main():  # Creates instance of GUI and shows it, and allows us to exit it
     third_window = GraphAnalyzerStockWindow(clientData)
     third_window.show()
     third_window.close()
+
 
 if __name__ == "__main__":
     main()
