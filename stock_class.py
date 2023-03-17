@@ -12,7 +12,6 @@ class Stock():
         :param day_one: The first stock date requested by the user
         :param day_two: THe second stock date requested by the user
         """
-
         self.tick_name = company_name
         self.day_one = day_one
         self.day_two = day_two

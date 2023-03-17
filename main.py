@@ -20,74 +20,36 @@ class Main():
         user_date = confirm_input.user_input_dates_plus_current_date(year, month, day)
         return user_date
 
-    def compareDates(self, yearOne, monthOne, dayOne, yearTwo, monthTwo, dayTwo):
-        yearOne = int(yearOne)
-        monthOne = int(monthOne)
-        dayOne = int(dayOne)
-        yearTwo = int(yearTwo)
-        monthTwo = int(monthTwo)
-        dayTwo = int(dayTwo)
+    def compareDates(self, year_one, month_one, day_one, year_two, month_two, day_two):
+        year_one = int(year_one)
+        month_one = int(month_one)
+        day_one = int(day_one)
+        year_two = int(year_two)
+        month_two = int(month_two)
+        day_two = int(day_two)
 
-        firstDate = date(yearOne, monthOne, dayOne)
-        secondDate = date(yearTwo, monthTwo, dayTwo)
+        firstDate = date(year_one, month_one, day_one)
+        secondDate = date(year_two, month_two, day_two)
 
         return firstDate, secondDate
-
-    '''
-    for now, the stockActivator will be solely done in the backend, and then the functions below will be
-    made in a third window that will show the graph, the investment and trading options and their 
-    respective graphs
-    '''
 
     def stockActivator(self, user_data, user_date_one, user_date_two):
         clientData = stock_class.Stock(user_data, user_date_one, user_date_two)
 
         return clientData
 
-    def stockActivate(self, clientData):
-        per_change = self.percentageChange(clientData)
-
-        while True:
-            if len(clientData.items) > 25:
-                period = len(clientData.items)
-                self.investment(clientData, per_change)
-                self.moving_avg_crossover(clientData)
-                self.rsi_function(clientData, period)
-                self.average_dir_index(clientData, period)
-
-            while True:
-                answer = str(input('Would you like to run again for this stock? (y/n): '))
-                if answer in ('y', 'n'):
-                    break
-                print("invalid input.")
-            if answer == 'y':
-                continue
-            else:
-                print("Goodbye")
-                break
-
-
     def percentageChange(self, clientData):
         """ Get the percentage change of the two dates given by the user.
         :param self: All the data needed from the given dates
         :return: the percent change between the first to the second
         """
-        print('For the first date')
-        data1 = self._ask_user_for_data()
-        print('For the second date')
-        data2 = self._ask_user_for_data()
 
-        first_call = getattr(clientData, str(data1))
-        sec_call = getattr(clientData, str(data2))
+        change = int(((clientData.close[-1] - clientData.close[0]) / clientData.close[0]) * 100)
 
-        change = int((sec_call[-1] / first_call[0]) * 100)
-
-        if change < 100:
-            print('The percentage change had a decline of ' + str(change) + '%')
+        if change < 0:
+            return False, change
         else:
-            print('The percentage change had a growth of ' + str(change) + '%')
-
-        return change
+            return True, change
 
 
     def _ask_user_for_data(self):
@@ -104,34 +66,40 @@ class Main():
 
         return data
 
-
-    def investment(self, clientData, percent_change):
+    def investment(self, percent_change, amount):
         """ Calcualates the investment amount for the user
         :param clientData: All the data needed from the given dates
         :return: the amount gained or lost
         """
-        while True:
-            amount = str(input('Enter the amount you would like to invest: $'))
-            if not amount.isdigit():
-                print('Invalid input (requires numeric amount)')
-                continue
-            else:
-                amount = int(amount)
-                break
+        return int(amount * (percent_change / 100))
 
-        investmentAmount = int(amount * (percent_change / 100))
-        total = abs(int(amount - investmentAmount))
 
-        if investmentAmount < amount:
-            print('If you invested on ' + str(clientData.day_one) + ' with the amount of $' + str(amount) + ' ,then you'
-                                                                                                         " would've lost $" + str(
-                total) + " if you withdraw on " + str(clientData.day_two) + ".")
-        else:
-            print('If you invested on ' + str(clientData.day_one) + ' with the amount of $' + str(amount) + ' ,then you'
-                                                                                                         " would've gained $" + str(
-                total) + " if you withdraw on " + str(clientData.day_two) + ".")
+    def _smooth_calc(self, tr_data, pos_mov, neg_mov, period):
+        """Smooths the true range, positive and negative directiona movement (dm) by period
+        param: tr_data: true range data for each day between the range
+        param: pos_mov: positive dm for each day between rhe range
+        param: neg_mov: negative dm for each day between rhe range
+        param: period: period range that's used to average the values
+        returns: smooth true range, smooth positive dm, and smooth negative dm
+        """
+        smooth_true_range = []
+        smooth_positive = []
+        smooth_negative = []
 
-    def moving_avg_crossover(self, clientData):
+        # Uses the period to calculate the average true range, positive dm, and negative dm, and
+        # then appends each value to their respective list
+        for i in range(len(tr_data) - period + 1):
+            # Calculates the sum of the data in the period range
+            sum_tr = sum(tr_data[i: i + period])
+            sum_pos = sum(pos_mov[i: i + period])
+            sum_neg = sum(neg_mov[i: i + period])
+            # Divides the sum by the period and appends to the respective "smooth" list
+            smooth_true_range.append(sum_tr / period)
+            smooth_positive.append(sum_pos / period)
+            smooth_negative.append(sum_neg / period)
+
+        return smooth_true_range, smooth_positive, smooth_negative
+    def moving_avg_crossover(self, clientData, short_term, long_term, price_type):
         """Calculates the short-term and long-term moving averages for each date
         :param clientData: All the data needed from the given dates
         :returns: list of long-term and short-term moving averages
@@ -139,10 +107,13 @@ class Main():
         short_term_ma = []
         long_term_ma = []
 
+        st = short_term
+        lt = long_term
+
         # Utilizes user-input to retrieve relevant data from clientData object
-        price_data = getattr(clientData, str(self._ask_user_for_data()))
+        price_data = getattr(clientData, price_type)
         # Asks user for what range to use for long-term and short-term
-        moving_avg_range = self._ask_user_for_range(price_data)
+        moving_avg_range = lt, st
 
         # Calculates long-term moving average for each day and appends it to long-term list
         for i in range(len(price_data) - moving_avg_range[0] + 1):
@@ -155,47 +126,6 @@ class Main():
             short_term_ma.append(sum_short_subset / moving_avg_range[1])
 
         return short_term_ma[-1] > long_term_ma[-1], long_term_ma, short_term_ma
-
-    def _ask_user_for_range(data_price):
-        """Ask user for valid range to use for calculating long-term and short-term
-           moving average
-        :param data_price: the type of data (open, close, high, low) being used
-        :returns: int tuple with valid long and short-term range
-        """
-        sentence = ('Please choose the range (day) for the long-term moving average \n'
-                    '1. 200, 2. 100, 3. 50, 4. 25, 5. 10 \nEnter numeric range here: ')
-
-        # Prompts user for long range until a valid input is received
-        while True:
-            long_range = str(input(sentence))
-            # If input is not any of the five in the list
-            if long_range not in ['200', '100', '50', '25', '10']:
-                print('Invalid input (options are 200, 100, 50, 25, 10)')
-                continue
-            # If input range is longer the range for price
-            elif int(long_range) > len(data_price):
-                print('Option must be within range of the two dates')
-                continue
-            else:
-                long_range = int(long_range)
-                break
-
-        # Prompts user for short range until a valid input is received
-        while True:
-            short_range = str(input(sentence.replace("long-term", "short-term")))
-            # If input is not any of the five in the list
-            if short_range not in ['200', '100', '50', '25', '10']:
-                print('Invalid input (options are 200, 100, 50, 25, 10)')
-                continue
-            # If input short range is greater than long range
-            elif int(short_range) >= long_range:
-                print('Range for short-term must be less than long-term')
-                continue
-            else:
-                short_range = int(short_range)
-                break
-
-        return long_range, short_range
 
     def average_dir_index(self, clientData, period):
         """Calculates the average direction index (ADX) for a specific period
@@ -225,7 +155,7 @@ class Main():
 
         return ((avg_dir_index[-1] > 20) and (pos_di[-1] > neg_di[-1])), avg_dir_index, pos_di, neg_di
 
-    def _dm_and_tr_calc(self,clientData):
+    def _dm_and_tr_calc(self, clientData):
         """Calculates true range, positive and negative directional movement (dm)
         param clientData: All the data needed from the given dates
         returns: list for true range, positive dm, and negative dm
@@ -235,7 +165,7 @@ class Main():
         negative_dm = []
 
         # Iterating through each day in the clientData day range
-        for i in range(1, clientData.day_range):
+        for i in range(len(clientData.items)):
             # Retrieves necessary values from clientData for day i calculations
             curr_high = clientData.high[i]
             curr_low = clientData.low[i]
@@ -263,32 +193,6 @@ class Main():
 
         return true_range, positive_dm, negative_dm
 
-    def _smooth_calc(self, tr_data, pos_mov, neg_mov, period):
-        """Smooths the true range, positive and negative directiona movement (dm) by period
-        param: tr_data: true range data for each day between the range
-        param: pos_mov: positive dm for each day between rhe range
-        param: neg_mov: negative dm for each day between rhe range
-        param: period: period range that's used to average the values
-        returns: smooth true range, smooth positive dm, and smooth negative dm
-        """
-        smooth_true_range = []
-        smooth_positive = []
-        smooth_negative = []
-
-        # Uses the period to calculate the average true range, positive dm, and negative dm, and
-        # then appends each value to their respective list
-        for i in range(len(tr_data) - period + 1):
-            # Calculates the sum of the data in the period range
-            sum_tr = sum(tr_data[i: i + period])
-            sum_pos = sum(pos_mov[i: i + period])
-            sum_neg = sum(neg_mov[i: i + period])
-            # Divides the sum by the period and appends to the respective "smooth" list
-            smooth_true_range.append(sum_tr / period)
-            smooth_positive.append(sum_pos / period)
-            smooth_negative.append(sum_neg / period)
-
-        return smooth_true_range, smooth_positive, smooth_negative
-
     def _directional_index(self, s_pos_dm, s_neg_dm, avg_tr):
         """Calculates the negative and positive directional index
         param: s_pos_dm: smooth positive directional movement based on the stock
@@ -309,6 +213,7 @@ class Main():
 
     def rsi_function(self, clientData, period):
         rsi_values = []
+
         for i in range(period):
             gaincounter = 0
             losscounter = 0
@@ -323,7 +228,7 @@ class Main():
                     loss += abs(clientData.close[-period + i + j + 1] - clientData.close[-period + i + j])
             avg_gain = gain / gaincounter
             avg_loss = loss / losscounter
-            rsi = 100 - 100 / (1 + (avg_gain / avg_loss))
+            rsi = 100 - (100 / (1 + (avg_gain / avg_loss)))
             rsi_values.append(rsi)
 
         return rsi_values[-1] < 30, rsi_values
@@ -336,22 +241,12 @@ class Main():
         """
         rsi_decision, rsi_value = self.rsi_function(clientData, 14)
         adx_decision, adx_value, pos_dir, neg_dir = self.average_dir_index(clientData, 14)
-        ma_decision, long_ma, short_ma = self.moving_avg_crossover(clientData)
+        ma_decision, long_ma, short_ma = self.moving_avg_crossover(clientData, 20, 50, 'close')
 
-        print("Moving Average Results: Short term - " + str(round(short_ma[-1], 2)) +
-              " ||| Long term - " + str(round(long_ma[-1], 2)))
-        print("Average Dir Index Results: ADX value - " + str(round(adx_value[-1], 2)) +
-              "||| Positive movement - " + str(round(pos_dir[-1], 2)) +
-              "||| Negative movement - " + str(round(neg_dir[-1], 2)))
-        print("RSI Results: " + str(round(rsi_value[-1], 2)))
-
-        if (ma_decision + adx_decision + rsi_decision >= 2):
-            print("Prediction: BUY " + clientData.tick_name)
+        if ma_decision + adx_decision + rsi_decision >= 2:
+            return "Prediction: BUY " + clientData.tick_name
         else:
-            print("Prediction: DO NOT BUY " + clientData.tick_name)
-
-        return
-
+            return "Prediction: DO NOT BUY " + clientData.tick_name
 
 if __name__ == '__main__':
     main_instance = Main()
