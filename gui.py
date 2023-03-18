@@ -9,7 +9,8 @@ import matplotlib as mpl
 from matplotlib import style
 import matplotlib.pyplot as plt
 from main import Main
-
+import numpy as np
+from datetime import timedelta
 # Program Description: This program is used to crate a GUI for the user to interact with
 # which will prompt the user for their desire company's stock abbreviation, first date
 # they want to use, second date they want to use, and various functions they want the
@@ -139,7 +140,6 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.main = Main()
         self.setWindowTitle("Graph Analyzer Dates")
         self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
-        self.setFixedSize(3000, 500)
 
         self.generalLayout = QGridLayout()  # Using grid layout with coordinates for this project
         self._centralWidget = QWidget(self)  # Central widget
@@ -470,6 +470,9 @@ class GraphAnalyzerStockWindow(QMainWindow):
         """
         throwaway_bool, rsi_values = self.main.rsi_function(clientdata, 14)
 
+        two_weeks_ago = clientdata.day_two - timedelta(days=21)
+        #could find a more accurate way to get the clientdata day_two from 14 days ago
+
         mpl.rcParams["toolbar"] = "None"
         plt.style.use("dark_background")
         style.use("ggplot")
@@ -482,7 +485,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         ax.text(len(rsi_values) - 10, 30, "30", color="red", ha="right", va="top")
         ax.text(len(rsi_values) - 10, 70, "70", color="blue", ha="right", va="bottom")
 
-        ax.set_xlabel("From " + str(clientdata.day_one) + " to " + str(clientdata.day_two) + " in days")
+        ax.set_xlabel("From " + str(two_weeks_ago) + " to " + str(clientdata.day_two) + " in days")
         ax.set_ylabel("RSI value")
         ax.set_title(clientdata.tick_name)
         ax.legend()
@@ -508,12 +511,15 @@ class GraphAnalyzerStockWindow(QMainWindow):
         :return: the adx value from the two given dates by the user
         """
         throwaway_bool, adx, pos_adx, neg_adx = self.main.average_dir_index(clientdata, 14)
+
+        adx_values_padded = [np.nan] * 13 + adx
+
         mpl.rcParams["toolbar"] = "None"
         plt.style.use("dark_background")
         style.use("ggplot")
 
         fig, ax = plt.subplots()
-        ax.plot(adx, color="black", label="ADX")
+        ax.plot(adx_values_padded, color="black", label="ADX")
         ax.plot(pos_adx, color="blue", label="+DI")
         ax.plot(neg_adx, color="purple", label="-DI")
 
@@ -551,7 +557,6 @@ class GraphAnalyzerStockWindow(QMainWindow):
         :return: the graph of the moving averages from the 2 sets of dates the user chooses from
         """
         while True:
-            app = QApplication([])
             dialog = QDialog()
             dialog.setWindowTitle("Checkbox Popup")
 
@@ -645,6 +650,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
                     self._make_mov_avg_graph(clientdata, short_term, long_term, price_type)
                     break
 
+    @pyqtSlot()
     def _make_mov_avg_graph(self, clientdata, short_term, long_term, price_type):
         """
         generates the moving average graph for the user
@@ -657,12 +663,15 @@ class GraphAnalyzerStockWindow(QMainWindow):
         throwaway_bool, lt_values, st_values = self.main.moving_avg_crossover(
             clientdata, short_term, long_term, price_type)
 
+        lt_start = (long_term - short_term)
+        lt_values_padded = [np.nan] * lt_start + lt_values
+
         mpl.rcParams["toolbar"] = "None"
         plt.style.use("dark_background")
         style.use("ggplot")
 
         fig, ax = plt.subplots()
-        ax.plot(lt_values, color="red", label="Long Term Moving Average")
+        ax.plot(lt_values_padded, color="red", label="Long Term Moving Average")
         ax.plot(st_values, color="blue", label="Short Term Moving Average")
 
         ax.set_xlabel("Days")
@@ -858,4 +867,3 @@ def main():  # Creates instance of GUI and shows it, and allows us to exit it
 
 if __name__ == "__main__":
     main()
-
