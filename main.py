@@ -1,5 +1,6 @@
-from gui import  QApplication,sys,GraphAnalyzerNameWindow
-
+from gui import  QApplication,\
+    GraphAnalyzerNameWindow, GraphAnalyzerDateWindow, GraphAnalyzerStockWindow
+import sys
 def main():  # Creates instance of GUI and shows it, and allows us to exit it
     GA = QApplication(sys.argv)
 
