@@ -1,14 +1,14 @@
-from datetime import datetime
 import stock_class
 import confirm_input
 from datetime import date
 
-'''
-for now, class Main will not be tha main class for the entire GUI. it is just the main class for it to be
-instantiated. 
-'''
 
-class Main():
+
+class Main:
+    """
+    for now, class Main will not be tha main class for the entire GUI. it is just the main class for it to be
+    instantiated.
+    """
 
     #for the first window GUI
     def nameActivate(self, user_data):

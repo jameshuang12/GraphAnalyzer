@@ -1,4 +1,3 @@
-import sys
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, \
