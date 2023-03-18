@@ -8,7 +8,7 @@ from datetime import date
 import matplotlib as mpl
 from matplotlib import style
 import matplotlib.pyplot as plt
-from main import Main
+from main_functions import Main
 import numpy as np
 from datetime import timedelta
 # Program Description: This program is used to crate a GUI for the user to interact with
@@ -845,25 +845,3 @@ class GraphAnalyzerStockWindow(QMainWindow):
             QApplication.instance().quit()
 
 
-def main():  # Creates instance of GUI and shows it, and allows us to exit it
-    GA = QApplication(sys.argv)
-
-    # First window
-    first_window = GraphAnalyzerNameWindow()
-    first_window.show()
-    sys.exit(GA.exec_())
-    user_data = first_window.getInput()
-
-    # Second window
-    second_window = GraphAnalyzerDateWindow(user_data)
-    second_window.show()
-    client_data = second_window.clientData()
-
-    # Third window
-    third_window = GraphAnalyzerStockWindow(client_data)
-    third_window.show()
-    third_window.close()
-
-
-if __name__ == "__main__":
-    main()
