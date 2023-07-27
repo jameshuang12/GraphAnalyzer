@@ -54,7 +54,6 @@ class Main:
 
     def _ask_user_for_data(self):
         """ Ask the user for the specific data they want provided by the stock market
-        :param yourmom: All the data needed from the given dates
         :return: the data the user wants to use
         """
         print('Please choose from the options below you would like to use')
