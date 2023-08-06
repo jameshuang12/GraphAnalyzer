@@ -1,23 +1,23 @@
-import stock_class
-import confirm_input
+from stock_information import Stock
+from confirm_input import StockReader
 from datetime import date
 
 
-
-class Main:
+class StockFunctions(StockReader):
     """
-    for now, class Main will not be tha main class for the entire GUI. it is just the main class for it to be
-    instantiated.
+    The Stock Function class has all the various functions that are given
+    to the user as an option to choose from once the user decided on the
+    company and the two dates.
     """
 
-    #for the first window GUI
+    # for the first window GUI
     def nameActivate(self, user_data):
-        confirmData = confirm_input.generate_hashmap(user_data)
+        confirmData = self.generate_hashmap(user_data)
         return confirmData
 
-    #for the second window
+    # for the second window
     def dateActivate(self, year, month, day):
-        user_date = confirm_input.user_input_dates_plus_current_date(year, month, day)
+        user_date = self.user_input_dates_plus_current_date(year, month, day)
         return user_date
 
     def compareDates(self, year_one, month_one, day_one, year_two, month_two, day_two):
@@ -34,7 +34,7 @@ class Main:
         return firstDate, secondDate
 
     def stockActivator(self, user_data, user_date_one, user_date_two):
-        clientData = stock_class.Stock(user_data, user_date_one, user_date_two)
+        clientData = Stock(user_data, user_date_one, user_date_two)
 
         return clientData
 
@@ -50,7 +50,6 @@ class Main:
             return False, change
         else:
             return True, change
-
 
     def _ask_user_for_data(self):
         """ Ask the user for the specific data they want provided by the stock market
@@ -72,7 +71,6 @@ class Main:
         :return: the amount gained or lost
         """
         return int(amount * (percent_change / 100))
-
 
     def _smooth_calc(self, tr_data, pos_mov, neg_mov, period):
         """Smooths the true range, positive and negative directiona movement (dm) by period
@@ -99,6 +97,7 @@ class Main:
             smooth_negative.append(sum_neg / period)
 
         return smooth_true_range, smooth_positive, smooth_negative
+
     def moving_avg_crossover(self, clientData, short_term, long_term, price_type):
         """Calculates the short-term and long-term moving averages for each date
         :param clientData: All the data needed from the given dates
@@ -153,7 +152,8 @@ class Main:
             sum_dx = sum(dir_index[i: i + period])
             avg_dir_index.append(sum_dx / period)
 
-        return ((avg_dir_index[-1] > 20) and (pos_di[-1] > neg_di[-1])), avg_dir_index, pos_di, neg_di
+        return ((avg_dir_index[-1] > 20) and (
+                    pos_di[-1] > neg_di[-1])), avg_dir_index, pos_di, neg_di
 
     def _dm_and_tr_calc(self, clientData):
         """Calculates true range, positive and negative directional movement (dm)
@@ -222,10 +222,12 @@ class Main:
             for j in range(period - 1, 0, -1):
                 if clientData.close[-period + i + j + 1] < clientData.close[-period + i + j]:
                     gaincounter += 1
-                    gain += clientData.close[-period + i + j] - clientData.close[-period + i + j + 1]
+                    gain += clientData.close[-period + i + j] - clientData.close[
+                        -period + i + j + 1]
                 else:
                     losscounter += 1
-                    loss += abs(clientData.close[-period + i + j + 1] - clientData.close[-period + i + j])
+                    loss += abs(
+                        clientData.close[-period + i + j + 1] - clientData.close[-period + i + j])
             avg_gain = gain / gaincounter
             avg_loss = loss / losscounter
             rsi = 100 - (100 / (1 + (avg_gain / avg_loss)))
@@ -248,5 +250,6 @@ class Main:
         else:
             return "Prediction: DO NOT BUY " + clientData.tick_name
 
+
 if __name__ == '__main__':
-    main_instance = Main()
+    main_instance = StockFunctions()

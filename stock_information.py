@@ -1,10 +1,17 @@
 from polygon import RESTClient
+
 # This key was generated specifically for us to access Polygon API database
 client = RESTClient("ub3XXNePvsNTCCHX3Wd3wNknwrm1pzbZ")
 
-# Program Description: This program is used to create a class template to store
-# all the value from the specified company.
-class Stock():
+
+class Stock:
+    """
+    This class is created to store all the values from the user's specified company.
+    The class will initialize the company name, day 1, and day 2. For the stock information,
+    it will collect the item, high, low, open, and close. The client will go into the API and
+    access all the information needed.
+    """
+
     def __init__(self, company_name, day_one, day_two):
         """
         Calls the constructor using the Stock object that will have to accept all 3 parameters.
@@ -39,14 +46,14 @@ class Stock():
             self.low.append(aggs[i].low)
             self.close.append(aggs[i].close)
 
-        # Inserts each of the items in a list into another list that will be
+        # Inserts each of the items in a list hat will be
         # capable to compute the rsi function
         for i in range(len(aggs)):
             self.items.append(aggs[i])
 
     def __str__(self):
         """
-        :return: The stock abbreviation of the company name
+        :return: The abbreviation of the company's stock name
         """
         return f"{self.tick_name}"
 

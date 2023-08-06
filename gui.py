@@ -7,7 +7,7 @@ from datetime import date
 import matplotlib as mpl
 from matplotlib import style
 import matplotlib.pyplot as plt
-from main_functions import Main
+from main_functions import StockFunctions
 import numpy as np
 from datetime import timedelta
 # Program Description: This program is used to crate a GUI for the user to interact with
@@ -24,7 +24,7 @@ class GraphAnalyzerNameWindow(QMainWindow):
         """
         # Begin the operation of the GUI
         super().__init__()
-        self.main = Main()
+        self.main = StockFunctions()
         # Sets up the name, icon, and size of our GUI
         self.setWindowTitle("Graph Analyzer")
         self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
@@ -72,8 +72,8 @@ class GraphAnalyzerNameWindow(QMainWindow):
         self.generalLayout.addWidget(self.searchButton, 2, 1)
 
     def getInput(self):  # Returns what is in the input box at the time. Also returns it capitalized
-        input = self.input.text()
-        return input.upper()
+        user_input = self.input.text()
+        return user_input.upper()
 
     def _removeInput(self):  # Resets input box
         self.input.setText("")
@@ -136,7 +136,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
         self.clientData = None
 
         # these variables will be used for the stock_class in the backend
-        self.main = Main()
+        self.main = StockFunctions()
         self.setWindowTitle("Graph Analyzer Dates")
         self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
 
@@ -327,7 +327,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.dateOne = date_one
         self.dateTwo = date_two
 
-        self.main = Main()
+        self.main = StockFunctions()
         self.setWindowTitle("Graph Analyzer")
         self.setWindowIcon(QtGui.QIcon("stocks.jpg"))
 
