@@ -12,7 +12,7 @@ class Stock:
     access all the information needed.
     """
 
-    def __init__(self, company_name, day_one, day_two):
+    def __init__(self, company_name:str, day_one:str, day_two:str):
         """
         Calls the constructor using the Stock object that will have to accept all 3 parameters.
         :param company_name: The name of the specified company
@@ -30,7 +30,7 @@ class Stock:
         self.open = []
 
         # This is the client info of the company
-        aggs = client.get_aggs(
+        self.aggregate_bars = client.get_aggs(
             self.tick_name,
             1,
             "day",
@@ -38,18 +38,7 @@ class Stock:
             self.day_two
         )
 
-        # Inserts open, high, low, and close to a list
-        # by collecting between the two dates specified
-        for i in range(len(aggs)):
-            self.open.append(aggs[i].open)
-            self.high.append(aggs[i].high)
-            self.low.append(aggs[i].low)
-            self.close.append(aggs[i].close)
-
-        # Inserts each of the items in a list hat will be
-        # capable to compute the rsi function
-        for i in range(len(aggs)):
-            self.items.append(aggs[i])
+        self.get_stock_information(self.aggregate_bars)
 
     def __str__(self):
         """
@@ -62,3 +51,19 @@ class Stock:
         :return: The total amount of stocks added to the list, not counting weekends or holidays
         """
         return len(self.items)
+
+    def get_stock_information(self, aggregate_bars) -> None:
+        """
+        Inserts open, high, low, and close to a list by collecting the values from
+        the two dates specified by the consumer
+        :param aggregate_bars: All the information from the stock company
+        :return: None
+        """
+        for i in range(len(aggregate_bars)):
+            self.open.append(aggregate_bars[i].open)
+            self.high.append(aggregate_bars[i].high)
+            self.low.append(aggregate_bars[i].low)
+            self.close.append(aggregate_bars[i].close)
+            # Inserts each of the items in a list that will be
+            # capable to compute the rsi function
+            self.items.append(aggregate_bars[i])
