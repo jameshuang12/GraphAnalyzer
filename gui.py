@@ -17,7 +17,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtWidgets import (
     QApplication, QCheckBox, QDateEdit, QDialog, QGridLayout, QGroupBox,
     QLabel, QLineEdit, QMainWindow, QMessageBox, QPushButton, QVBoxLayout,
@@ -160,7 +160,7 @@ class GraphAnalyzerDateWindow(_BaseWindow):
         self._date_edit.setCalendarPopup(True)
         self._date_edit.setDisplayFormat("yyyy-MM-dd")
         self._date_edit.setDate(
-            QtGui.QDate.currentDate().addMonths(-6)
+            QDate.currentDate().addMonths(-6)
         )
         self._date_edit.setFixedHeight(55)
         self._date_edit.setFont(INPUT_FONT)
@@ -219,7 +219,19 @@ class GraphAnalyzerStockWindow(_BaseWindow):
     def __init__(self, ticker: str, day_one: date, day_two: date, main: Main) -> None:
         super().__init__("Graph Analyzer", main)
 
-        self._stock = main.build_stock(ticker, day_one, day_two)
+        try:
+            self._stock = main.build_stock(ticker, day_one, day_two)
+        except Exception as exc:
+            self.show_warning("API Error", f"Could not fetch data for {ticker}:\n{exc}")
+            return
+
+        if len(self._stock) == 0:
+            self.show_warning(
+                "No Data",
+                f"No trading days found for {ticker} between {day_one} and {day_two}.\n"
+                "Try a wider date range or a different ticker."
+            )
+            return
 
         layout = QGridLayout()
         central = QWidget(self)
@@ -271,27 +283,32 @@ class GraphAnalyzerStockWindow(_BaseWindow):
 
     def _build_info_panel(self, layout: QGridLayout) -> None:
         stock = self._stock
-        last  = len(stock) - 1
-
         info_group = QGroupBox("Price Summary")
         info_group.setFont(INFO_FONT)
         info_layout = QVBoxLayout()
 
         rows = [
-            f"Start date:  {stock.day_one}",
-            f"End date:    {stock.day_two}",
+            f"Start date:   {stock.day_one}",
+            f"End date:     {stock.day_two}",
             f"Trading days: {len(stock)}",
-            "",
-            f"Open  (start): ${stock.open[0]:.2f}",
-            f"High  (start): ${stock.high[0]:.2f}",
-            f"Low   (start): ${stock.low[0]:.2f}",
-            f"Close (start): ${stock.close[0]:.2f}",
-            "",
-            f"Open  (end):  ${stock.open[last]:.2f}",
-            f"High  (end):  ${stock.high[last]:.2f}",
-            f"Low   (end):  ${stock.low[last]:.2f}",
-            f"Close (end):  ${stock.close[last]:.2f}",
         ]
+        if len(stock) > 0:
+            last = len(stock) - 1
+            rows += [
+                "",
+                f"Open  (start): ${stock.open[0]:.2f}",
+                f"High  (start): ${stock.high[0]:.2f}",
+                f"Low   (start): ${stock.low[0]:.2f}",
+                f"Close (start): ${stock.close[0]:.2f}",
+                "",
+                f"Open  (end):   ${stock.open[last]:.2f}",
+                f"High  (end):   ${stock.high[last]:.2f}",
+                f"Low   (end):   ${stock.low[last]:.2f}",
+                f"Close (end):   ${stock.close[last]:.2f}",
+            ]
+        else:
+            rows.append("No trading data for this range.")
+
         for text in rows:
             lbl = QLabel(text)
             lbl.setFont(INFO_FONT)
