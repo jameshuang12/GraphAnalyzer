@@ -64,7 +64,7 @@ class _BaseWindow(QMainWindow):
         msg.setWindowTitle(title)
         msg.setText(message)
         msg.setIcon(QMessageBox.Icon.Warning)
-        msg.exec_()
+        msg.exec()
 
     # ------------------------------------------------------------------
     def _center_on_screen(self) -> None:
@@ -115,7 +115,8 @@ class GraphAnalyzerNameWindow(_BaseWindow):
         self._ticker_input.returnPressed.connect(self._on_search)
 
         self.setMinimumWidth(480)
-        self._center_on_screen()
+        self.resize(520, 160)
+        self.move(400, 300)
 
     # ------------------------------------------------------------------
     def _on_search(self) -> None:
@@ -242,6 +243,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         self._build_info_panel(layout)
 
         self.setMinimumSize(820, 580)
+        self.adjustSize()
         self._center_on_screen()
 
     # ------------------------------------------------------------------
@@ -393,7 +395,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
             dlg_layout.addWidget(ok_btn)
             dialog.setLayout(dlg_layout)
 
-            if dialog.exec_() != QDialog.DialogCode.Accepted:
+            if dialog.exec() != QDialog.DialogCode.Accepted:
                 break  # user closed / cancelled
 
             short = next((int(c.text()) for c in short_boxes[1] if c.isChecked()), None)
@@ -500,7 +502,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
             f"Result on   {self._stock.day_two}: ${result:,} {direction}\n"
             f"Percent change: {sign}{pct}%"
         )
-        msg.exec_()
+        msg.exec()
         dialog.accept()
 
     # ------------------------------------------------------------------
@@ -511,7 +513,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         msg = QMessageBox(self)
         msg.setWindowTitle("Buy Recommendation")
         msg.setText(self.main.buy_recommendation(self._stock))
-        msg.exec_()
+        msg.exec()
 
     # ------------------------------------------------------------------
     # Exit
