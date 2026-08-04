@@ -52,16 +52,16 @@ def time_stamp(today, user_year, user_month, user_day):
     :return: the boolean value to continue with the program, or else throw an error
     """
 
-    year = int(_validate_number(user_year))
-    month = int(_validate_number(user_month))
-    day = int(_validate_number(user_day))
-    fulldate = date(year, month, day)
-    delta = relativedelta.relativedelta(today, fulldate)
-
-    if not delta.years < 2:
+    try:
+        year = int(_validate_number(user_year))
+        month = int(_validate_number(user_month))
+        day = int(_validate_number(user_day))
+        fulldate = date(year, month, day)
+    except (ValueError, TypeError):
         return False
-    else:
-        return True
+
+    delta = relativedelta.relativedelta(today, fulldate)
+    return delta.years < 2 and fulldate <= today
 
 
 

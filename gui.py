@@ -426,7 +426,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.graph_button = QPushButton("Open Graph")
         info_font = QtGui.QFont("Helvetica Neue", 14)
         self.graph_button.setFont(info_font)
-        self.graph_button.setStyleSheet("background-color: #a69695}")
+        self.graph_button.setStyleSheet("background-color: #a69695;")
         self.graph_button.clicked.connect(lambda: self.makeGraph(clientdata))
         self.generalLayout.addWidget(self.graph_button, 2, 0, 1, 3)
 
@@ -456,7 +456,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.rsi_button = QPushButton("RSI")
         info_font = QtGui.QFont("Helvetica Neue", 14)
         self.rsi_button.setFont(info_font)
-        self.rsi_button.setStyleSheet("background-color: #a69695}")
+        self.rsi_button.setStyleSheet("background-color: #a69695;")
         self.rsi_button.clicked.connect(lambda: self._make_rsi_graph(clientdata))
         self.generalLayout.addWidget(self.rsi_button, 4, 0, 1, 2)
 
@@ -499,7 +499,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.adx_button = QPushButton("ADX")
         info_font = QtGui.QFont("Helvetica Neue", 14)
         self.adx_button.setFont(info_font)
-        self.adx_button.setStyleSheet("background-color: #a69695}")
+        self.adx_button.setStyleSheet("background-color: #a69695;")
         self.adx_button.clicked.connect(lambda: self._make_adx_graph(clientdata))
         self.generalLayout.addWidget(self.adx_button, 5, 0, 1, 2)
 
@@ -545,7 +545,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.moving_average_button = QPushButton("Moving Avg")
         info_font = QtGui.QFont("Helvetica Neue", 14)
         self.moving_average_button.setFont(info_font)
-        self.moving_average_button.setStyleSheet("background-color: #a69695}")
+        self.moving_average_button.setStyleSheet("background-color: #a69695;")
         self.moving_average_button.clicked.connect(lambda: self._mov_avg_checkbox(clientdata))
         self.generalLayout.addWidget(self.moving_average_button, 6, 0, 1, 2)
 
@@ -635,12 +635,13 @@ class GraphAnalyzerStockWindow(QMainWindow):
                     if checkbox.isChecked():
                         price_type = checkbox.text()
 
-                if short_term >= long_term:
-                    self.show_warning("Error ", "Long Term days must be longer than Short Term")
+                if short_term is None or long_term is None or price_type is None:
+                    self.show_warning("Error", "Please select one option from each group.")
+                elif short_term >= long_term:
+                    self.show_warning("Error", "Long Term days must be longer than Short Term.")
                 elif long_term >= len(clientdata):
-                    self.show_warning("Error ", "Long Term days must be shorter than days "
-                                            "available in the stock")
-                    #need to fix loop if error pops up
+                    self.show_warning("Error", "Long Term days must be shorter than the number "
+                                               "of trading days available.")
                 else:
                     # Print selected options
                     print("Selected options from Set 1:", short_term)
@@ -705,7 +706,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.investment_button = QPushButton("Investment")
         info_font = QtGui.QFont("Helvetica Neue", 14)
         self.investment_button.setFont(info_font)
-        self.investment_button.setStyleSheet("background-color: #a69695}")
+        self.investment_button.setStyleSheet("background-color: #a69695;")
         self.investment_button.clicked.connect(lambda: self._make_investment_window(clientdata))
         self.generalLayout.addWidget(self.investment_button, 3, 0, 1, 2)
 
@@ -799,7 +800,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         self.should_i_button = QPushButton("Should I buy?")
         info_font = QtGui.QFont("Helvetica Neue", 14)
         self.should_i_button.setFont(info_font)
-        self.should_i_button.setStyleSheet("background-color: #a69695}")
+        self.should_i_button.setStyleSheet("background-color: #a69695;")
         self.should_i_button.clicked.connect(lambda: self.should_i_invest_results(clientdata))
         self.generalLayout.addWidget(self.should_i_button, 7, 0, 1, 2)
 
@@ -825,10 +826,6 @@ class GraphAnalyzerStockWindow(QMainWindow):
         exit_button = QPushButton('Exit', self)
         exit_button.clicked.connect(self.show_popup)
         self.generalLayout.addWidget(exit_button, 10, 0)
-
-        # will need to fix the windows and such
-        self.setWindowTitle('My App')
-        self.show()
 
     def show_popup(self):
         """

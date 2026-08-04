@@ -225,9 +225,14 @@ class Main:
                 else:
                     losscounter += 1
                     loss += abs(clientData.close[-period + i + j + 1] - clientData.close[-period + i + j])
-            avg_gain = gain / gaincounter
-            avg_loss = loss / losscounter
-            rsi = 100 - (100 / (1 + (avg_gain / avg_loss)))
+            avg_gain = gain / gaincounter if gaincounter > 0 else 0.0
+            avg_loss = loss / losscounter if losscounter > 0 else 0.0
+            if avg_loss == 0:
+                rsi = 100.0
+            elif avg_gain == 0:
+                rsi = 0.0
+            else:
+                rsi = 100 - (100 / (1 + (avg_gain / avg_loss)))
             rsi_values.append(rsi)
 
         return rsi_values[-1] < 30, rsi_values
