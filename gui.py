@@ -10,6 +10,7 @@ A single Main instance is created in the first window and passed to each
 subsequent window so the business-logic layer is not re-instantiated needlessly.
 """
 
+import os
 import sys
 from datetime import date, timedelta
 
@@ -35,13 +36,11 @@ APP_FONT      = QtGui.QFont("Helvetica Neue", 18)
 INPUT_FONT    = QtGui.QFont("Verdana", 18)
 INFO_FONT     = QtGui.QFont("Helvetica Neue", 13)
 TITLE_FONT    = QtGui.QFont("Helvetica Neue", 36)
-UNDERLINE_FONT = QtGui.QFont("Helvetica Neue", 13)
-
 PRIMARY_COLOR   = "#29c455"   # search / confirm buttons
 SECONDARY_COLOR = "#4a90d9"   # action buttons
 DANGER_COLOR    = "#e05c5c"   # exit button
 
-WINDOW_ICON = "stocks.jpg"
+WINDOW_ICON = os.path.join(os.path.dirname(__file__), "stocks.jpg")
 
 
 # ---------------------------------------------------------------------------

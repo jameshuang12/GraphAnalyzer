@@ -7,6 +7,7 @@ True / False — no exception handling required at the GUI layer.
 """
 
 import csv
+import os
 import re
 from datetime import date
 from dateutil import relativedelta
@@ -18,7 +19,7 @@ from dateutil import relativedelta
 
 def generate_hashmap(user_data: str) -> bool:
     """Return True if *user_data* is a valid ticker in StockSymbols.csv."""
-    ticker_set = _load_tickers("StockSymbols.csv")
+    ticker_set = _load_tickers(os.path.join(os.path.dirname(__file__), "StockSymbols.csv"))
     return _is_valid_ticker(ticker_set, user_data)
 
 
