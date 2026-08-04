@@ -1,0 +1,11 @@
+# Normalize line endings to LF in the repo; checkout as LF everywhere
+* text=auto eol=lf
+*.py text eol=lf
+*.csv text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+
+# Binary files - never touch
+*.jpg binary
+*.png binary
+*.ico binary

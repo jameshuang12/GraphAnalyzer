@@ -7,3 +7,10 @@ dist/
 __pycache__/
 *.so
 *~
+
+# Environment / secrets
+.env
+
+# IDE
+.idea/
+.vscode/
