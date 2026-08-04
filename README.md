@@ -1,21 +1,28 @@
 # GraphAnalyzer
 
-A desktop stock analysis tool built with Python and PyQt6. Enter a ticker symbol and date range to retrieve real-time OHLC data from the Polygon.io API and explore a suite of technical indicators and investment tools.
+Welcome to our personal project. We are a group of Computer Science majors from Vanderbilt University engaged in diverse projects aimed at showcasing our programming prowess and expanding our skill sets within the realm of coding.
 
-## Features
+Our project, GraphAnalyzer, revolves around facilitating consumer interaction with company stock data. Through this application, users are prompted to specify a company's stock ticker and provide two distinct dates, enabling the extraction of the company's stock performance within the specified timeframe. This sophisticated program remains adept at procuring real-time market share data, generating an array of informative charts, and presenting tailored investment strategies to the consumer.
 
-- **Percentage change** — overall return between two dates
-- **Stock price chart** — OHLC candlestick-style line chart
-- **RSI (Relative Strength Index)** — momentum oscillator with overbought/oversold bands
-- **ADX (Average Directional Index)** — trend strength with +DI / −DI lines
-- **Moving average crossover** — 20-day vs 50-day SMA signal
-- **Investment calculator** — dollar gain/loss on a hypothetical position
-- **Buy recommendation** — combined RSI + ADX + MA crossover signal
+The consumer has the option to see the percentage change, stock prices, RSI value, ADX value, moving average value, and the invested value net worth between the two dates. Furthermore, the software possesses the functionality to accept a user-specified value, subsequently utilizing our proprietary algorithm to determine the optimal withdrawal date for the specified amount.
 
-## Requirements
+In essence, GraphAnalyzer showcases our team's dedication to harnessing computational proficiency for the analysis of financial data, providing users with invaluable insights to inform their investment decisions.
 
-- Python 3.13+
-- A free [Polygon.io](https://polygon.io) API key
+## Skillset
+
+API · Python · PyQt6 · Matplotlib
+
+## How to Use
+
+**`stock_class.py`** is the module created to retrieve the company's stock data from Polygon's API. It reads your API key from the environment and constructs a `Stock` object holding OHLC values, high, low, close, and open prices for the requested date range.
+
+**`StockSymbols.csv`** facilitates the program's identification of specific company stock symbols. **`confirm_input.py`** interfaces with this file to validate that the consumer's ticker input matches a known symbol, and performs date range validation.
+
+**`main_functions.py`** is the business-logic layer — it exposes methods for computing RSI, ADX, moving average crossover, percentage change, and the buy recommendation algorithm. It has no knowledge of Qt widgets.
+
+**`gui.py`** initializes and manages the three PyQt6 windows that guide the consumer's journey: ticker entry → date selection → results. The results window provides all requested information and options the consumer can choose from, ranging from percentage change, stock prices, RSI value, ADX value, moving average value, and the invested value net worth between the two dates.
+
+**`main.py`** is the entry point — it creates the QApplication, applies the global stylesheet, and launches the first window.
 
 ## Setup
 
@@ -33,30 +40,22 @@ A desktop stock analysis tool built with Python and PyQt6. Enter a ticker symbol
 3. **Configure your API key**
    ```bash
    cp .env.example .env
-   # Edit .env and replace the placeholder with your Polygon.io key
+   # Edit .env and add your Polygon.io API key
    ```
 
 4. **Run the app**
    ```bash
    python main.py
    ```
-   Or on Windows, double-click `run.bat`.
+   On Windows, double-click `run.bat`.
 
-## Project Structure
+## API Reference
 
-| File | Purpose |
-|------|---------|
-| `main.py` | Entry point — creates the QApplication and applies the global stylesheet |
-| `gui.py` | All PyQt6 windows (ticker input → date selection → results) |
-| `main_functions.py` | Business logic: validation, Stock construction, technical indicators |
-| `stock_class.py` | Polygon.io API wrapper — fetches OHLC data into a Stock object |
-| `confirm_input.py` | Input validation helpers (ticker lookup, date range checks) |
-| `StockSymbols.csv` | ~8 000 valid ticker symbols used for ticker validation |
-| `.env.example` | Template for your POLYGON_API_KEY |
+Stock data is provided by [Polygon.io](https://polygon.io). A free API key is required and must be set as `POLYGON_API_KEY` in your `.env` file.
 
-## Tech Stack
+## Additional Information
 
-Python · PyQt6 · Matplotlib · Polygon.io API
+More features are actively being added to GraphAnalyzer. Comments are written throughout the codebase to assist with guidance.
 
 ## Authors
 
