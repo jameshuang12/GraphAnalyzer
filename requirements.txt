@@ -1,4 +1,4 @@
-PyQt5>=5.15.0
+PyQt6>=6.4.0
 polygon-api-client>=1.0.0
 matplotlib>=3.5.0
 numpy>=1.22.0

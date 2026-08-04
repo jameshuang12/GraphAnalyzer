@@ -63,7 +63,7 @@ def main() -> None:
     app.setStyleSheet(_APP_STYLE)
     first_window = GraphAnalyzerNameWindow()
     first_window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

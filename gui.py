@@ -1,7 +1,7 @@
 """
 gui.py
 ------
-PyQt5 GUI for the Graph Analyzer stock tool.
+PyQt6 GUI for the Graph Analyzer stock tool.
 
 Window flow:
   GraphAnalyzerNameWindow  →  GraphAnalyzerDateWindow  →  GraphAnalyzerStockWindow
@@ -17,9 +17,9 @@ from datetime import date, timedelta
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QDate
-from PyQt5.QtWidgets import (
+from PyQt6 import QtGui
+from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtWidgets import (
     QApplication, QCheckBox, QDateEdit, QDialog, QGridLayout, QGroupBox,
     QLabel, QLineEdit, QMainWindow, QMessageBox, QPushButton, QVBoxLayout,
     QWidget,
@@ -63,7 +63,7 @@ class _BaseWindow(QMainWindow):
         msg = QMessageBox(self)
         msg.setWindowTitle(title)
         msg.setText(message)
-        msg.setIcon(QMessageBox.Warning)
+        msg.setIcon(QMessageBox.Icon.Warning)
         msg.exec_()
 
     # ------------------------------------------------------------------
@@ -150,7 +150,7 @@ class GraphAnalyzerDateWindow(_BaseWindow):
             f"Stock found: <b>{ticker}</b><br>"
             "Enter the <b>start</b> date (must be within the past two years):"
         )
-        self._prompt.setTextFormat(Qt.RichText)
+        self._prompt.setTextFormat(Qt.TextFormat.RichText)
         self._prompt.setFont(APP_FONT)
         self._prompt.setWordWrap(True)
         layout.addWidget(self._prompt, 0, 0, 1, 2)
@@ -251,7 +251,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
     def _build_title(self, layout: QGridLayout) -> None:
         title = QLabel(self._stock.tick_name)
         title.setFont(TITLE_FONT)
-        title.setAlignment(Qt.AlignCenter)
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title, 0, 0, 1, 7)
 
     def _build_action_buttons(self, layout: QGridLayout) -> None:
@@ -393,7 +393,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
             dlg_layout.addWidget(ok_btn)
             dialog.setLayout(dlg_layout)
 
-            if dialog.exec_() != QDialog.Accepted:
+            if dialog.exec_() != QDialog.DialogCode.Accepted:
                 break  # user closed / cancelled
 
             short = next((int(c.text()) for c in short_boxes[1] if c.isChecked()), None)
@@ -435,7 +435,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
     @staticmethod
     def _enforce_single(state: int, option: str, boxes: list[QCheckBox]) -> None:
         """Uncheck all boxes except the one just checked (radio-button behaviour)."""
-        if state == Qt.Checked:
+        if state == Qt.CheckState.Checked:
             for cb in boxes:
                 if cb.text() != option:
                     cb.setChecked(False)
@@ -521,7 +521,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         reply = QMessageBox.question(
             self, "Quit",
             "Are you sure you want to quit?",
-            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             QApplication.instance().quit()
