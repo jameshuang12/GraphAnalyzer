@@ -1,57 +1,72 @@
+"""
+stock_class.py
+--------------
+Defines the Stock data class that fetches and holds OHLC price data
+from the Polygon.io REST API for a given ticker and date range.
+
+The API key is read from the POLYGON_API_KEY environment variable.
+Copy .env.example to .env and fill in your key, or export the variable
+before running the app.
+"""
+
+import os
+from datetime import date
+
+from dotenv import load_dotenv
 from polygon import RESTClient
-# This key was generated specifically for us to access Polygon API database
-client = RESTClient("YOUR_POLYGON_API_KEY_HERE")
 
-# Program Description: This program is used to create a class template to store
-# all the value from the specified company.
-class Stock():
-    def __init__(self, company_name, day_one, day_two):
-        """
-        Calls the constructor using the Stock object that will have to accept all 3 parameters.
-        :param company_name: The name of the specified company
-        :param day_one: The first stock date requested by the user
-        :param day_two: THe second stock date requested by the user
-        """
+load_dotenv()
 
-        self.tick_name = company_name
+
+class Stock:
+    """Holds daily OHLC data for *ticker* between *day_one* and *day_two*.
+
+    Attributes:
+        tick_name: The ticker symbol (e.g. "AAPL").
+        day_one:   Start date of the range.
+        day_two:   End date of the range.
+        open:      List of daily open prices.
+        high:      List of daily high prices.
+        low:       List of daily low prices.
+        close:     List of daily close prices.
+    """
+
+    def __init__(self, ticker: str, day_one: date, day_two: date) -> None:
+        api_key = os.getenv("POLYGON_API_KEY")
+        if not api_key:
+            raise EnvironmentError(
+                "POLYGON_API_KEY is not set. "
+                "Copy .env.example to .env and add your key."
+            )
+
+        self.tick_name = ticker
         self.day_one = day_one
         self.day_two = day_two
-        self.items = []
-        self.high = []
-        self.low = []
-        self.close = []
-        self.open = []
 
-        # This is the client info of the company
-        aggs = client.get_aggs(
-            self.tick_name,
-            1,
-            "day",
-            self.day_one,
-            self.day_two
-        )
+        client = RESTClient(api_key)
+        aggs = client.get_aggs(ticker, 1, "day", day_one, day_two)
 
-        # Inserts open, high, low, and close to a list
-        # by collecting between the two dates specified
-        for i in range(len(aggs)):
-            self.open.append(aggs[i].open)
-            self.high.append(aggs[i].high)
-            self.low.append(aggs[i].low)
-            self.close.append(aggs[i].close)
+        self.open  = [bar.open  for bar in aggs]
+        self.high  = [bar.high  for bar in aggs]
+        self.low   = [bar.low   for bar in aggs]
+        self.close = [bar.close for bar in aggs]
+        # Keep raw bars for any callers that index into .items
+        self.items = list(aggs)
 
-        # Inserts each of the items in a list into another list that will be
-        # capable to compute the rsi function
-        for i in range(len(aggs)):
-            self.items.append(aggs[i])
+    # ------------------------------------------------------------------
+    # Dunder helpers
+    # ------------------------------------------------------------------
 
-    def __str__(self):
-        """
-        :return: The stock abbreviation of the company name
-        """
-        return f"{self.tick_name}"
-
-    def __len__(self):
-        """
-        :return: The total amount of stocks added to the list, not counting weekends or holidays
-        """
+    def __len__(self) -> int:
+        """Number of trading days in the range (excludes weekends/holidays)."""
         return len(self.items)
+
+    def __str__(self) -> str:
+        return self.tick_name
+
+    def __repr__(self) -> str:
+        return (
+            f"Stock(ticker={self.tick_name!r}, "
+            f"day_one={self.day_one}, day_two={self.day_two}, "
+            f"days={len(self)})"
+        )
