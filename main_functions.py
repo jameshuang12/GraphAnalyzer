@@ -1,256 +1,226 @@
-import stock_class
-import confirm_input
+"""
+main_functions.py
+-----------------
+Business-logic layer between the GUI and the data model.
+
+The Main class exposes methods for validating user input, constructing
+Stock objects, and computing technical indicators (RSI, ADX, moving
+average crossover).  It has no knowledge of Qt widgets.
+"""
+
 from datetime import date
 
+import confirm_input
+import stock_class
+from stock_class import Stock
 
 
 class Main:
-    """
-    for now, class Main will not be tha main class for the entire GUI. it is just the main class for it to be
-    instantiated.
-    """
+    """Stateless service class.  The GUI instantiates this once and calls
+    its methods to validate input and perform calculations."""
 
-    #for the first window GUI
-    def nameActivate(self, user_data):
-        confirmData = confirm_input.generate_hashmap(user_data)
-        return confirmData
+    # ------------------------------------------------------------------
+    # Input validation (Window 1 & 2)
+    # ------------------------------------------------------------------
 
-    #for the second window
-    def dateActivate(self, year, month, day):
-        user_date = confirm_input.user_input_dates_plus_current_date(year, month, day)
-        return user_date
+    def validate_ticker(self, ticker: str) -> bool:
+        """Return True if *ticker* maps to a known symbol in StockSymbols.csv."""
+        return confirm_input.generate_hashmap(ticker)
 
-    def compareDates(self, year_one, month_one, day_one, year_two, month_two, day_two):
-        year_one = int(year_one)
-        month_one = int(month_one)
-        day_one = int(day_one)
-        year_two = int(year_two)
-        month_two = int(month_two)
-        day_two = int(day_two)
+    def validate_date(self, year: str, month: str, day: str) -> bool:
+        """Return True if the three string components form a valid date within
+        the past two years."""
+        return confirm_input.user_input_dates_plus_current_date(year, month, day)
 
-        firstDate = date(year_one, month_one, day_one)
-        secondDate = date(year_two, month_two, day_two)
+    def parse_dates(
+        self,
+        year_one: str, month_one: str, day_one: str,
+        year_two: str, month_two: str, day_two: str,
+    ) -> tuple[date, date]:
+        """Convert six validated date strings into two date objects."""
+        first = date(int(year_one), int(month_one), int(day_one))
+        second = date(int(year_two), int(month_two), int(day_two))
+        return first, second
 
-        return firstDate, secondDate
+    # ------------------------------------------------------------------
+    # Stock construction (Window 2 → 3)
+    # ------------------------------------------------------------------
 
-    def stockActivator(self, user_data, user_date_one, user_date_two):
-        clientData = stock_class.Stock(user_data, user_date_one, user_date_two)
+    def build_stock(self, ticker: str, day_one: date, day_two: date) -> Stock:
+        """Fetch OHLC data from Polygon and return a Stock instance."""
+        return stock_class.Stock(ticker, day_one, day_two)
 
-        return clientData
+    # ------------------------------------------------------------------
+    # Financial calculations
+    # ------------------------------------------------------------------
 
-    def percentageChange(self, clientData):
-        """ Get the percentage change of the two dates given by the user.
-        :param self: All the data needed from the given dates
-        :return: the percent change between the first to the second
-        """
+    def percentage_change(self, stock: Stock) -> tuple[bool, int]:
+        """Return (is_positive, percent_change) from close[0] to close[-1]."""
+        change = int(((stock.close[-1] - stock.close[0]) / stock.close[0]) * 100)
+        return change >= 0, change
 
-        change = int(((clientData.close[-1] - clientData.close[0]) / clientData.close[0]) * 100)
-
-        if change < 0:
-            return False, change
-        else:
-            return True, change
-
-
-    def _ask_user_for_data(self):
-        """ Ask the user for the specific data they want provided by the stock market
-        :return: the data the user wants to use
-        """
-        print('Please choose from the options below you would like to use')
-        print('1. open, 2. high, 3. low, 4. close')
-        data = str(input('Enter the data here: '))
-
-        while data not in ['high', 'open', 'low', 'close']:
-            data = str(input('Incorrect input, options are open, high , low, close: '))
-
-        return data
-
-    def investment(self, percent_change, amount):
-        """ Calcualates the investment amount for the user
-        :param clientData: All the data needed from the given dates
-        :return: the amount gained or lost
-        """
+    def investment_return(self, percent_change: int, amount: float) -> int:
+        """Return the dollar gain/loss on *amount* given *percent_change*."""
         return int(amount * (percent_change / 100))
 
+    # ------------------------------------------------------------------
+    # Technical indicators
+    # ------------------------------------------------------------------
 
-    def _smooth_calc(self, tr_data, pos_mov, neg_mov, period):
-        """Smooths the true range, positive and negative directiona movement (dm) by period
-        param: tr_data: true range data for each day between the range
-        param: pos_mov: positive dm for each day between rhe range
-        param: neg_mov: negative dm for each day between rhe range
-        param: period: period range that's used to average the values
-        returns: smooth true range, smooth positive dm, and smooth negative dm
+    def rsi(self, stock: Stock, period: int = 14) -> tuple[bool, list[float]]:
+        """Compute RSI over the last *period* days.
+
+        Returns (is_oversold, rsi_values) where is_oversold is True when
+        the final RSI value is below 30.
         """
-        smooth_true_range = []
-        smooth_positive = []
-        smooth_negative = []
-
-        # Uses the period to calculate the average true range, positive dm, and negative dm, and
-        # then appends each value to their respective list
-        for i in range(len(tr_data) - period + 1):
-            # Calculates the sum of the data in the period range
-            sum_tr = sum(tr_data[i: i + period])
-            sum_pos = sum(pos_mov[i: i + period])
-            sum_neg = sum(neg_mov[i: i + period])
-            # Divides the sum by the period and appends to the respective "smooth" list
-            smooth_true_range.append(sum_tr / period)
-            smooth_positive.append(sum_pos / period)
-            smooth_negative.append(sum_neg / period)
-
-        return smooth_true_range, smooth_positive, smooth_negative
-    def moving_avg_crossover(self, clientData, short_term, long_term, price_type):
-        """Calculates the short-term and long-term moving averages for each date
-        :param clientData: All the data needed from the given dates
-        :returns: list of long-term and short-term moving averages
-        """
-        short_term_ma = []
-        long_term_ma = []
-
-        st = short_term
-        lt = long_term
-
-        # Utilizes user-input to retrieve relevant data from clientData object
-        price_data = getattr(clientData, price_type)
-        # Asks user for what range to use for long-term and short-term
-        moving_avg_range = lt, st
-
-        # Calculates long-term moving average for each day and appends it to long-term list
-        for i in range(len(price_data) - moving_avg_range[0] + 1):
-            sum_long_subset = sum(price_data[i: i + moving_avg_range[0]])
-            long_term_ma.append(sum_long_subset / moving_avg_range[0])
-
-        # Calculates short-term moving average for each day and appends it to short-term list
-        for i in range(len(price_data) - moving_avg_range[1] + 1):
-            sum_short_subset = sum(price_data[i: i + moving_avg_range[1]])
-            short_term_ma.append(sum_short_subset / moving_avg_range[1])
-
-        return short_term_ma[-1] > long_term_ma[-1], long_term_ma, short_term_ma
-
-    def average_dir_index(self, clientData, period):
-        """Calculates the average direction index (ADX) for a specific period
-        param: ClientData: All the data needed from the given dates
-        param: period: specific time range used to calculate the average (usually 14)
-        returns: list for average directional index, positive directional index,
-                 and negative directional index
-        """
-        dir_index = []
-        avg_dir_index = []
-
-        # Calculates true range, positive and negative directional movement
-        trueRange, posdm, negdm = self._dm_and_tr_calc(clientData)
-        # Smooths the true range, positive and negative directional movement over the period
-        s_tr, s_positive, s_negative = self._smooth_calc(trueRange, posdm, negdm, period)
-        # Calculates both the negative and positive directional index
-        pos_di, neg_di = self._directional_index(s_positive, s_negative, s_tr)
-
-        # Calculates the daily directional index using positive and negative directional index
-        for i in range(len(pos_di)):
-            dir_index.append((abs(pos_di[i] - neg_di[i])) / (abs(pos_di[i] + neg_di[i])) * 100)
-
-        # Smooths (averages) the directional index and appends it to the ADX list
-        for i in range(len(dir_index) - period + 1):
-            sum_dx = sum(dir_index[i: i + period])
-            avg_dir_index.append(sum_dx / period)
-
-        return ((avg_dir_index[-1] > 20) and (pos_di[-1] > neg_di[-1])), avg_dir_index, pos_di, neg_di
-
-    def _dm_and_tr_calc(self, clientData):
-        """Calculates true range, positive and negative directional movement (dm)
-        param clientData: All the data needed from the given dates
-        returns: list for true range, positive dm, and negative dm
-        """
-        true_range = []
-        positive_dm = []
-        negative_dm = []
-
-        # Iterating through each day in the clientData day range
-        for i in range(len(clientData.items)):
-            # Retrieves necessary values from clientData for day i calculations
-            curr_high = clientData.high[i]
-            curr_low = clientData.low[i]
-            prev_high = clientData.high[i - 1]
-            prev_low = clientData.low[i - 1]
-            prev_close = clientData.close[i - 1]
-
-            # Calculates day i's positive and negative movement
-            pos_movement = curr_high - prev_high
-            neg_movement = prev_low - curr_low
-
-            # Appends positive movement or 0 (whichever is greater) to positive dm and 0 to
-            # negative dm if positive is greater than negative, else the reverse
-            if pos_movement > neg_movement:
-                positive_dm.append(max(pos_movement, 0))
-                negative_dm.append(0)
-            else:
-                positive_dm.append(0)
-                negative_dm.append(max(neg_movement, 0))
-
-            # Appends to true range the max value between current high - current low,
-            # current high - previous close, and current low - previous close
-            true_range.append(max(abs(curr_high - curr_low), abs(curr_high - prev_close),
-                                  abs(curr_low - prev_close)))
-
-        return true_range, positive_dm, negative_dm
-
-    def _directional_index(self, s_pos_dm, s_neg_dm, avg_tr):
-        """Calculates the negative and positive directional index
-        param: s_pos_dm: smooth positive directional movement based on the stock
-        param: s_neg_dm: smooth negative directional movement based on the stock
-        param: avg_tr: average true range based on the stock
-        returns: positive and negative directional index
-        """
-        positive_di = []
-        negative_di = []
-
-        # Calculates the negative and positive directional index and append it
-        for i in range(len(s_pos_dm)):
-            # Divides each smooth value by the respective avg true range and multiply it by 100
-            positive_di.append((s_pos_dm[i] / avg_tr[i]) * 100)
-            negative_di.append((s_neg_dm[i] / avg_tr[i]) * 100)
-
-        return positive_di, negative_di
-
-    def rsi_function(self, clientData, period):
-        rsi_values = []
+        rsi_values: list[float] = []
+        closes = stock.close
 
         for i in range(period):
-            gaincounter = 0
-            losscounter = 0
-            gain = 0
-            loss = 0
+            gain = loss = 0.0
+            gain_count = loss_count = 0
+
             for j in range(period - 1, 0, -1):
-                if clientData.close[-period + i + j + 1] < clientData.close[-period + i + j]:
-                    gaincounter += 1
-                    gain += clientData.close[-period + i + j] - clientData.close[-period + i + j + 1]
+                curr = closes[-period + i + j + 1]
+                prev = closes[-period + i + j]
+                if curr < prev:
+                    gain += prev - curr
+                    gain_count += 1
                 else:
-                    losscounter += 1
-                    loss += abs(clientData.close[-period + i + j + 1] - clientData.close[-period + i + j])
-            avg_gain = gain / gaincounter if gaincounter > 0 else 0.0
-            avg_loss = loss / losscounter if losscounter > 0 else 0.0
+                    loss += abs(curr - prev)
+                    loss_count += 1
+
+            avg_gain = gain / gain_count if gain_count > 0 else 0.0
+            avg_loss = loss / loss_count if loss_count > 0 else 0.0
+
             if avg_loss == 0:
-                rsi = 100.0
+                rsi_value = 100.0
             elif avg_gain == 0:
-                rsi = 0.0
+                rsi_value = 0.0
             else:
-                rsi = 100 - (100 / (1 + (avg_gain / avg_loss)))
-            rsi_values.append(rsi)
+                rsi_value = 100 - (100 / (1 + avg_gain / avg_loss))
+
+            rsi_values.append(rsi_value)
 
         return rsi_values[-1] < 30, rsi_values
 
-    def buy_or_not(self, clientData):
-        """
-        :param: rsi function value, ADX function value, moving average value(Calculation TBD)
-        :return: statement that will tell user whether to buy stock or not based on
-                 the three indicating factors
-        """
-        rsi_decision, rsi_value = self.rsi_function(clientData, 14)
-        adx_decision, adx_value, pos_dir, neg_dir = self.average_dir_index(clientData, 14)
-        ma_decision, long_ma, short_ma = self.moving_avg_crossover(clientData, 20, 50, 'close')
+    def moving_avg_crossover(
+        self,
+        stock: Stock,
+        short_term: int,
+        long_term: int,
+        price_type: str,
+    ) -> tuple[bool, list[float], list[float]]:
+        """Compute short- and long-term simple moving averages.
 
-        if ma_decision + adx_decision + rsi_decision >= 2:
-            return "Prediction: BUY " + clientData.tick_name
-        else:
-            return "Prediction: DO NOT BUY " + clientData.tick_name
+        Returns (short_above_long, long_term_ma, short_term_ma).
+        """
+        prices: list[float] = getattr(stock, price_type)
 
-if __name__ == '__main__':
-    main_instance = Main()
+        long_ma = [
+            sum(prices[i: i + long_term]) / long_term
+            for i in range(len(prices) - long_term + 1)
+        ]
+        short_ma = [
+            sum(prices[i: i + short_term]) / short_term
+            for i in range(len(prices) - short_term + 1)
+        ]
+
+        return short_ma[-1] > long_ma[-1], long_ma, short_ma
+
+    def average_directional_index(
+        self, stock: Stock, period: int = 14
+    ) -> tuple[bool, list[float], list[float], list[float]]:
+        """Compute ADX, +DI, and -DI for *stock* over *period* days.
+
+        Returns (should_buy, adx_values, pos_di, neg_di).
+        should_buy is True when ADX > 20 and +DI > -DI (uptrend with strength).
+        """
+        true_range, pos_dm, neg_dm = self._dm_and_tr(stock)
+        s_tr, s_pos, s_neg = self._smooth(true_range, pos_dm, neg_dm, period)
+        pos_di, neg_di = self._directional_index(s_pos, s_neg, s_tr)
+
+        dx = [
+            abs(pos_di[i] - neg_di[i]) / abs(pos_di[i] + neg_di[i]) * 100
+            for i in range(len(pos_di))
+        ]
+        adx = [
+            sum(dx[i: i + period]) / period
+            for i in range(len(dx) - period + 1)
+        ]
+
+        should_buy = adx[-1] > 20 and pos_di[-1] > neg_di[-1]
+        return should_buy, adx, pos_di, neg_di
+
+    def buy_recommendation(self, stock: Stock) -> str:
+        """Combine RSI, ADX, and MA crossover signals into a buy/hold call."""
+        rsi_buy, _ = self.rsi(stock, 14)
+        adx_buy, _, _, _ = self.average_directional_index(stock, 14)
+        ma_buy, _, _ = self.moving_avg_crossover(stock, 20, 50, "close")
+
+        signals = rsi_buy + adx_buy + ma_buy
+        action = "BUY" if signals >= 2 else "DO NOT BUY"
+        return f"Prediction: {action} {stock.tick_name}"
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    def _dm_and_tr(
+        self, stock: Stock
+    ) -> tuple[list[float], list[float], list[float]]:
+        """Calculate true range, positive DM, and negative DM for each day."""
+        true_range: list[float] = []
+        pos_dm: list[float] = []
+        neg_dm: list[float] = []
+
+        for i in range(len(stock.items)):
+            curr_high  = stock.high[i]
+            curr_low   = stock.low[i]
+            prev_high  = stock.high[i - 1]
+            prev_low   = stock.low[i - 1]
+            prev_close = stock.close[i - 1]
+
+            up_move   = curr_high - prev_high
+            down_move = prev_low  - curr_low
+
+            if up_move > down_move:
+                pos_dm.append(max(up_move, 0.0))
+                neg_dm.append(0.0)
+            else:
+                pos_dm.append(0.0)
+                neg_dm.append(max(down_move, 0.0))
+
+            true_range.append(
+                max(
+                    abs(curr_high - curr_low),
+                    abs(curr_high - prev_close),
+                    abs(curr_low  - prev_close),
+                )
+            )
+
+        return true_range, pos_dm, neg_dm
+
+    def _smooth(
+        self,
+        tr: list[float],
+        pos: list[float],
+        neg: list[float],
+        period: int,
+    ) -> tuple[list[float], list[float], list[float]]:
+        """Rolling average of true range and ±DM over *period* days."""
+        smooth_tr  = [sum(tr [i: i + period]) / period for i in range(len(tr)  - period + 1)]
+        smooth_pos = [sum(pos[i: i + period]) / period for i in range(len(pos) - period + 1)]
+        smooth_neg = [sum(neg[i: i + period]) / period for i in range(len(neg) - period + 1)]
+        return smooth_tr, smooth_pos, smooth_neg
+
+    def _directional_index(
+        self,
+        s_pos: list[float],
+        s_neg: list[float],
+        avg_tr: list[float],
+    ) -> tuple[list[float], list[float]]:
+        """Convert smoothed ±DM to ±DI by dividing by average true range."""
+        pos_di = [(s_pos[i] / avg_tr[i]) * 100 for i in range(len(s_pos))]
+        neg_di = [(s_neg[i] / avg_tr[i]) * 100 for i in range(len(s_pos))]
+        return pos_di, neg_di

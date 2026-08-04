@@ -89,7 +89,7 @@ class GraphAnalyzerNameWindow(QMainWindow):
     def _inputSend(self):
         user_data = self.getInput()
 
-        if not self.main.nameActivate(user_data):
+        if not self.main.validate_ticker(user_data):
             self.show_warning("Error", "Invalid input. Please try again.")
             self._removeInput()
             # it shows the error message twice for some reason
@@ -255,7 +255,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
             self.DateOneMonth = self._getMonthInput()
             self.DateOneDay = self._getDayInput()
 
-            if not self.main.dateActivate(self.DateOneYear, self.DateOneMonth, self.DateOneDay):
+            if not self.main.validate_date(self.DateOneYear, self.DateOneMonth, self.DateOneDay):
                 self.show_warning("Error", "Invalid first date. Please try again.")
                 self._removeYearInput()
                 self._removeMonthInput()
@@ -273,7 +273,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
             self.DateTwoMonth = self._getMonthInput()
             self.DateTwoDay = self._getDayInput()
 
-            if not self.main.dateActivate(self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay):
+            if not self.main.validate_date(self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay):
                 self.show_warning("Error", "Invalid second date. Please try again.")
                 self._removeYearInput()
                 self._removeMonthInput()
@@ -284,7 +284,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
             self._removeDayInput()
 
             # compare dates
-            dateOne, dateTwo = self.main.compareDates(self.DateOneYear, self.DateOneMonth, self.DateOneDay,
+            dateOne, dateTwo = self.main.parse_dates(self.DateOneYear, self.DateOneMonth, self.DateOneDay,
                                                       self.DateTwoYear, self.DateTwoMonth, self.DateTwoDay)
             if not dateOne < dateTwo:
                 self.show_warning("Error", "First date must be earlier than the second date. Please try again.")
@@ -306,7 +306,7 @@ class GraphAnalyzerDateWindow(QMainWindow):
         :param date_one: the first date inputted by the user
         :param date_two: the second date inputted by the user
         """
-        clientData = self.main.stockActivator(stock_name, date_one, date_two)
+        clientData = self.main.build_stock(stock_name, date_one, date_two)
         self.third_window = GraphAnalyzerStockWindow(clientData, date_one, date_two)
         self.third_window.show()
 
@@ -467,7 +467,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         :param clientdata: the company's name
         :return: the rsi value from the two dates given by the user
         """
-        throwaway_bool, rsi_values = self.main.rsi_function(clientdata, 14)
+        throwaway_bool, rsi_values = self.main.rsi(clientdata, 14)
 
         two_weeks_ago = clientdata.day_two - timedelta(days=21)
         #could find a more accurate way to get the clientdata day_two from 14 days ago
@@ -509,7 +509,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         :param clientdata: the company's name
         :return: the adx value from the two given dates by the user
         """
-        throwaway_bool, adx, pos_adx, neg_adx = self.main.average_dir_index(clientdata, 14)
+        throwaway_bool, adx, pos_adx, neg_adx = self.main.average_directional_index(clientdata, 14)
 
         adx_values_padded = [np.nan] * 13 + adx
 
@@ -759,8 +759,8 @@ class GraphAnalyzerStockWindow(QMainWindow):
         :param amount: the amount inserted by the user
         :return: the investment amount, whether it was a gain or a loss
         """
-        up_or_down, per_change = self.main.percentageChange(clientdata)
-        invested_amount = self.main.investment(per_change, amount)
+        up_or_down, per_change = self.main.percentage_change(clientdata)
+        invested_amount = self.main.investment_return(per_change, amount)
 
         amount = '${:,.2f}'.format(amount)  #creates into currency value
         msg = QMessageBox()
@@ -813,7 +813,7 @@ class GraphAnalyzerStockWindow(QMainWindow):
         msg = QMessageBox()
         msg.setWindowTitle("Should I invest?")
 
-        text = self.main.buy_or_not(client_data)
+        text = self.main.buy_recommendation(client_data)
         msg.setText(text)
         msg.exec_()
 
