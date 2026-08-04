@@ -1,24 +1,24 @@
 import sys
 from gui import QApplication, GraphAnalyzerNameWindow
 
-# Global application stylesheet applied to every widget
+# Global application stylesheet — warm cream / dark-wood palette
 _APP_STYLE = """
     QMainWindow, QDialog {
-        background-color: #1e1e2e;
+        background-color: #1c1810;
     }
     QWidget {
-        background-color: #1e1e2e;
-        color: #cdd6f4;
+        background-color: #1c1810;
+        color: #f5ebe0;
     }
     QLineEdit, QDateEdit {
-        background-color: #313244;
-        color: #cdd6f4;
-        border: 1px solid #45475a;
+        background-color: #2a2015;
+        color: #f5ebe0;
+        border: 1px solid #5c4a2e;
         border-radius: 6px;
         padding: 4px 8px;
     }
     QLineEdit:focus, QDateEdit:focus {
-        border: 1px solid #89b4fa;
+        border: 1px solid #f5ebe0;
     }
     QPushButton {
         border-radius: 6px;
@@ -29,11 +29,11 @@ _APP_STYLE = """
         opacity: 0.85;
     }
     QGroupBox {
-        border: 1px solid #45475a;
+        border: 1px solid #5c4a2e;
         border-radius: 6px;
         margin-top: 10px;
         padding: 8px;
-        color: #bac2de;
+        color: #f0d9b5;
     }
     QGroupBox::title {
         subcontrol-origin: margin;
@@ -41,19 +41,19 @@ _APP_STYLE = """
         padding: 0 4px;
     }
     QLabel {
-        color: #cdd6f4;
+        color: #f5ebe0;
     }
     QCheckBox {
-        color: #cdd6f4;
+        color: #f5ebe0;
         spacing: 6px;
     }
     QCalendarWidget {
-        background-color: #313244;
-        color: #cdd6f4;
+        background-color: #2a2015;
+        color: #f5ebe0;
     }
     QMessageBox {
-        background-color: #1e1e2e;
-        color: #cdd6f4;
+        background-color: #1c1810;
+        color: #f5ebe0;
     }
 """
 

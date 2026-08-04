@@ -14,3 +14,16 @@ __pycache__/
 # IDE
 .idea/
 .vscode/
+
+# Logs and local debug files
+*.log
+*_log.txt
+check_log.txt
+install_log.txt
+run_log.txt
+err_log.txt
+
+# Local utility / debug scripts (not part of the app)
+test_qt.py
+diag.py
+run.bat

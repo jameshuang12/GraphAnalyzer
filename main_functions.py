@@ -117,6 +117,9 @@ class Main:
         """
         prices: list[float] = getattr(stock, price_type)
 
+        if len(prices) < long_term:
+            return False, [], []
+
         long_ma = [
             sum(prices[i: i + long_term]) / long_term
             for i in range(len(prices) - long_term + 1)
@@ -153,14 +156,26 @@ class Main:
         return should_buy, adx, pos_di, neg_di
 
     def buy_recommendation(self, stock: Stock) -> str:
-        """Combine RSI, ADX, and MA crossover signals into a buy/hold call."""
+        """Combine RSI, ADX, and MA crossover signals into a buy/hold call.
+
+        Requires at least 50 trading days for the MA crossover signal.
+        If insufficient data, a note is appended and only RSI + ADX vote.
+        """
         rsi_buy, _ = self.rsi(stock, 14)
         adx_buy, _, _, _ = self.average_directional_index(stock, 14)
         ma_buy, _, _ = self.moving_avg_crossover(stock, 20, 50, "close")
 
-        signals = rsi_buy + adx_buy + ma_buy
-        action = "BUY" if signals >= 2 else "DO NOT BUY"
-        return f"Prediction: {action} {stock.tick_name}"
+        note = ""
+        if len(stock) < 50:
+            note = "\n(MA crossover skipped — need at least 50 trading days)"
+            signals = rsi_buy + adx_buy
+            threshold = 1
+        else:
+            signals = rsi_buy + adx_buy + ma_buy
+            threshold = 2
+
+        action = "BUY" if signals >= threshold else "DO NOT BUY"
+        return f"Prediction: {action} — {stock.tick_name}{note}"
 
     # ------------------------------------------------------------------
     # Private helpers

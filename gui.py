@@ -37,7 +37,7 @@ INPUT_FONT    = QtGui.QFont("Verdana", 18)
 INFO_FONT     = QtGui.QFont("Helvetica Neue", 13)
 TITLE_FONT    = QtGui.QFont("Helvetica Neue", 36)
 PRIMARY_COLOR   = "#29c455"   # search / confirm buttons
-SECONDARY_COLOR = "#4a90d9"   # action buttons
+SECONDARY_COLOR = "#f5ebe0"   # action buttons (cream)
 DANGER_COLOR    = "#e05c5c"   # exit button
 
 WINDOW_ICON = os.path.join(os.path.dirname(__file__), "stocks.jpg")
@@ -257,7 +257,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         layout.addWidget(title, 0, 0, 1, 7)
 
     def _build_action_buttons(self, layout: QGridLayout) -> None:
-        btn_style = f"QPushButton {{ background-color: {SECONDARY_COLOR}; color: white; }}"
+        btn_style = f"QPushButton {{ background-color: {SECONDARY_COLOR}; color: #1c1810; }}"
 
         buttons = [
             ("Open Graph",    self._show_price_graph,     2, 0),
@@ -339,10 +339,10 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         self._apply_plot_style()
         fig, ax = plt.subplots()
         ax.plot(rsi_values, color="black")
-        ax.axhline(y=30, color="red",  label="Oversold (30)")
-        ax.axhline(y=70, color="blue", label="Overbought (70)")
-        ax.text(len(rsi_values) - 1, 31, "30", color="red",  ha="right")
-        ax.text(len(rsi_values) - 1, 71, "70", color="blue", ha="right")
+        ax.axhline(y=30, color="red",     label="Oversold (30)")
+        ax.axhline(y=70, color="#f5d48a", label="Overbought (70)")
+        ax.text(len(rsi_values) - 1, 31, "30", color="red",     ha="right")
+        ax.text(len(rsi_values) - 1, 71, "70", color="#f5d48a", ha="right")
         ax.set_xlabel(f"From ~{approx_start} to {stock.day_two}")
         ax.set_ylabel("RSI")
         ax.set_title(f"{stock.tick_name} – RSI (14)")
@@ -357,7 +357,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         self._apply_plot_style()
         fig, ax = plt.subplots()
         ax.plot(adx_padded, color="black",  label="ADX")
-        ax.plot(pos_di,     color="blue",   label="+DI")
+        ax.plot(pos_di,     color="#f5d48a", label="+DI")
         ax.plot(neg_di,     color="purple", label="-DI")
         ax.axhline(y=25, color="red",    label="Weak trend (25)")
         ax.axhline(y=50, color="yellow", label="Moderate trend (50)")
@@ -450,7 +450,7 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         self._apply_plot_style()
         fig, ax = plt.subplots()
         ax.plot(long_padded, color="red",  label=f"{long}-day MA")
-        ax.plot(short_ma,    color="blue", label=f"{short}-day MA")
+        ax.plot(short_ma,    color="#f5d48a", label=f"{short}-day MA")
         ax.set_xlabel("Trading days")
         ax.set_ylabel(f"{price.capitalize()} price ($)")
         ax.set_title(f"{stock.tick_name} – Moving Average Crossover")
