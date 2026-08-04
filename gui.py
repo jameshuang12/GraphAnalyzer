@@ -68,6 +68,12 @@ class _BaseWindow(QMainWindow):
         msg.exec_()
 
     # ------------------------------------------------------------------
+    def _center_on_screen(self) -> None:
+        screen = QApplication.primaryScreen().availableGeometry()
+        fg = self.frameGeometry()
+        fg.moveCenter(screen.center())
+        self.move(fg.topLeft())
+
     @staticmethod
     def _apply_plot_style() -> None:
         """Set up a consistent matplotlib style for every chart."""
@@ -108,6 +114,9 @@ class GraphAnalyzerNameWindow(_BaseWindow):
         layout.addWidget(search_btn, 1, 1)
 
         self._ticker_input.returnPressed.connect(self._on_search)
+
+        self.setMinimumWidth(480)
+        self._center_on_screen()
 
     # ------------------------------------------------------------------
     def _on_search(self) -> None:
@@ -220,6 +229,9 @@ class GraphAnalyzerStockWindow(_BaseWindow):
         self._build_title(layout)
         self._build_action_buttons(layout)
         self._build_info_panel(layout)
+
+        self.setMinimumSize(820, 580)
+        self._center_on_screen()
 
     # ------------------------------------------------------------------
     # Layout helpers
